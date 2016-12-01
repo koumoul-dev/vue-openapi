@@ -1,11 +1,11 @@
 <template>
 <div>
-  Component here
+    Component here
 </div>
 </template>
 
 <script>
 export default {
-  name: 'home'
+    name: 'openapi'
 }
 </script>

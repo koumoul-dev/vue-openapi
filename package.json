@@ -2,8 +2,9 @@
   "name": "vue-openapi",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "OpenAPI.vue.js",
   "scripts": {
+    "dev": "NODE_ENV=development webpack --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
