@@ -23,19 +23,8 @@ module.exports = {
       test: /\.css$/,
       loader: process.env.NODE_ENV !== 'development' ? 'style!css?minimize' : 'style!css?-minimize'
     }, {
-      test: /\.less$/,
-      loader: process.env.NODE_ENV !== 'development' ? 'style!css?minimize!less' : 'style!css?-minimize!less'
-    }, {
-      test: /\.svg$/,
-      exclude: /assets\/.*$/,
-      loader: 'svg-url-loader'
-    }, {
-      test: /assets\/.*$/,
-      loader: 'file?name=assets/[name].svg'
-    }, {
-      test: [/flags\/(1x1|4x3)\/.*\.svg$/, /moment\/locale\/(?!fr)/],
-      exclude: /flags\/(1x1|4x3)\/(gb|fr)\.svg$/,
-      loader: 'ignore-loader'
+      test: /\.json$/,
+      loader: 'json-loader'
     }]
   },
   resolve: {

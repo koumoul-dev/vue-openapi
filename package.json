@@ -2,7 +2,7 @@
   "name": "vue-openapi",
   "version": "0.0.0",
   "description": "",
-  "main": "OpenAPI.vue.js",
+  "main": "OpenAPI.vue",
   "scripts": {
     "dev": "NODE_ENV=development webpack --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -26,6 +26,7 @@
     "eslint-plugin-promise": "^3.4.0",
     "eslint-plugin-standard": "^2.0.1",
     "file-loader": "^0.9.0",
+    "json-loader": "^0.5.4",
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
     "vue": "^2.1.3",
