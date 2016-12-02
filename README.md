@@ -36,3 +36,13 @@ new Vue({
   }
 })
 ```
+## License
+
+[MIT License](license.md)
+
+## Similar projects
+
+This project has been inspired by the following projects :
+
+ * [angular-swagger-ui](https://github.com/Orange-OpenSource/angular-swagger-ui)
+ * [angular-swagger-ui-material](https://github.com/darosh/angular-swagger-ui-material)
