@@ -1,21 +1,16 @@
 <template>
-<div>
+<md-layout md-column>
+  <md-layout md-align="center"><h2 class="md-display-1">Documentation for API {{api.servers[0].url}}</h2></md-layout>
   <md-layout md-row>
     <md-layout md-flex="25">
-
       <md-list class="md-dense" ref="menu">
         <md-list-item v-for="(entries, tag) in tags" md-expand-multiple>
-          <!-- <md-icon>whatshot</md-icon> -->
           <span class="md-title">{{tag}}</span>
-
           <md-list-expand>
             <md-list>
               <md-list-item v-for="entry in entries" @click.native="select(entry)">
-                <!-- .replace(/\{/g,'<span style=color:purple>').replace(/\}/g,'</span>') -->
                 <md-subheader class="md-title" :class="{'md-accent':selectedEntry === entry}" v-html="entry.path.replace(/\//g,'<b>/</b>')"></md-subheader>
                 <md-subheader :md-theme="entry.method" class="md-primary">{{entry.method}}</md-subheader>
-
-
               </md-list-item>
             </md-list>
           </md-list-expand>
@@ -24,7 +19,7 @@
     </md-layout>
 
     <md-layout md-flex="75" v-if="selectedEntry" md-column>
-      <h2>{{selectedEntry.summary}}</h2>
+      <h3 class="md-headline">{{selectedEntry.summary}}</h3>
       <md-layout>
         <md-button class="md-raised md-primary" @click.native="openSidenav">Make request</md-button>
       </md-layout>
@@ -147,7 +142,7 @@
     </md-layout>
   </md-sidenav>
 
-</div>
+</md-layout>
 </template>
 
 <style>
