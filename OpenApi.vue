@@ -3,8 +3,8 @@
   <md-layout md-row>
     <md-layout md-flex="25">
 
-      <md-list class="md-dense">
-        <md-list-item v-for="(entries, tag) in tags">
+      <md-list class="md-dense" ref="menu">
+        <md-list-item v-for="(entries, tag) in tags" md-expand-multiple>
           <!-- <md-icon>whatshot</md-icon> -->
           <span class="md-title">{{tag}}</span>
 
@@ -112,33 +112,39 @@
         </md-button>
       </div>
     </md-toolbar>
+    <md-layout md-gutter md-column style="padding: 16px;">
+      <h2>Request</h2>
+      <form novalidate @submit.stop.prevent="submit" v-if="selectedEntry" id="request-form">
+        <div v-for="parameter in selectedEntry.parameters">
+          <md-input-container v-if="(parameter.schema.type === 'string' || parameter.schema.type === 'number') && !parameter.schema.enum">
+            <label>{{parameter.description}}</label>
+            <md-input v-model="currentRequest[parameter.name]" :type="parameter.schema.type === 'string' ? 'text' : 'number'" :placeholder="parameter.name"></md-input>
+          </md-input-container>
 
-    <h2>Request</h2>
-    <form novalidate @submit.stop.prevent="submit" v-if="selectedEntry">
-      <div v-for="parameter in selectedEntry.parameters">
-        <md-input-container v-if="(parameter.schema.type === 'string' || parameter.schema.type === 'number') && !parameter.schema.enum">
-          <label>{{parameter.description}}</label>
-          <md-input v-model="currentRequest[parameter.name]" :type="parameter.schema.type === 'string' ? 'text' : 'number'" :placeholder="parameter.name"></md-input>
-        </md-input-container>
+          <md-input-container v-if="parameter.schema.enum">
+            <label>{{parameter.description}}</label>
+            <md-select v-model="currentRequest[parameter.name]" :placeholder="parameter.name">
+              <md-option v-for="val in parameter.schema.enum" :value="val">{{val}}</md-option>
+            </md-select>
+          </md-input-container>
 
-        <md-input-container v-if="parameter.schema.enum">
-          <label>{{parameter.description}}</md-tooltip></label>
-          <md-select v-model="currentRequest[parameter.name]" :placeholder="parameter.name">
-            <md-option v-for="val in parameter.schema.enum" :value="val">{{val}}</md-option>
-          </md-select>
-        </md-input-container>
+          <md-input-container v-if="parameter.schema.type === 'array' && parameter.schema.items.enum">
+            <label>{{parameter.description}}</label>
+            <md-select v-model="currentRequest[parameter.name]" multiple :placeholder="parameter.name">
+              <md-option v-for="val in parameter.schema.items.enum" :value="val">{{val}}</md-option>
+            </md-select>
+          </md-input-container>
+        </div>
+      </form>
+      <md-layout>
+        <md-button class="md-raised md-accent" @click.native="request">Request</md-button>
+      </md-layout>
 
-      </div>
-
-
-    </form>
-    <md-button class="md-raised md-accent" @click.native="request">Request</md-button>
-
-    <h2>Response</h2>
-    <pre>
-      {{currentResponse}}
-    </pre>
-
+      <h2>Response</h2>
+      <pre>
+        {{currentResponse}}
+      </pre>
+    </md-layout>
   </md-sidenav>
 
 </div>
@@ -147,6 +153,10 @@
 <style>
 .md-right .md-sidenav-content {
   width: 500px;
+}
+
+#request-form {
+  padding: 16px;
 }
 </style>
 
@@ -162,6 +172,7 @@ export default {
     currentResponse: ''
   }),
   mounted: function() {
+    this.$refs.menu.$children[0].toggleExpandList()
     this.$material.registerTheme({
       get: {
         primary: 'blue'
@@ -221,7 +232,14 @@ export default {
     }
   },
   methods: {
+    resetRequest(entry) {
+      for (var p in this.currentRequest) delete this.currentRequest[p]
+      this.currentRequest = Object.assign({}, this.currentRequest, ...(entry.parameters || []).map(p => ({
+        [p.name]: p.schema.enum ? p.schema.enum[0] : (p.schema.type === 'array' ? [] : null)
+      })))
+    },
     select(entry) {
+      this.resetRequest(entry)
       this.selectedEntry = entry
     },
     openSchemaDialog(schema) {
@@ -233,10 +251,7 @@ export default {
       this.$refs.examplesDialog.open()
     },
     openSidenav() {
-      for (var p in this.currentRequest) delete this.currentRequest[p]
-      this.currentRequest = Object.assign({}, this.currentRequest, ...(this.selectedEntry.parameters || []).map(p => ({
-        [p.name]: p.schema.enum ? p.schema.enum[0] : null
-      })))
+      this.resetRequest(this.selectedEntry)
       this.currentResponse = ''
       this.$refs.sidenav.open()
     },
@@ -245,15 +260,21 @@ export default {
     },
     request() {
       this.currentResponse = ''
+      let params = Object.assign({}, ...this.selectedEntry.parameters.filter(p => p.schema.type === 'array' ? this.currentRequest[p.name].length : this.currentRequest[p.name])
+        .map(p => ({
+          // TODO : join character for array should depend of p.style
+          [p.name]: p.schema.type === 'array' ? this.currentRequest[p.name].join(',') : this.currentRequest[p.name]
+        }))
+      )
       this.$http({
         method: this.selectedEntry.method,
         url: this.api.servers[0].url + this.selectedEntry.path.replace(/{(\w*)}/g, (m, key) => {
           return this.currentRequest[key]
-        })
+        }),
+        params
       }).then(response => {
-        console.log(response)
         this.currentResponse = JSON.stringify(response.body, null, 2)
-      },response => {
+      }, response => {
         this.currentResponse = JSON.stringify(response.body, null, 2)
       })
     },
