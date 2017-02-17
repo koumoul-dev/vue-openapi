@@ -255,7 +255,7 @@ export default {
     },
     request() {
       this.currentResponse = ''
-      let params = Object.assign({}, ...this.selectedEntry.parameters.filter(p => p.schema.type === 'array' ? this.currentRequest[p.name].length : this.currentRequest[p.name])
+      let params = Object.assign({}, ...(this.selectedEntry.parameters || []).filter(p => p.schema.type === 'array' ? this.currentRequest[p.name].length : this.currentRequest[p.name])
         .map(p => ({
           // TODO : join character for array should depend of p.style
           [p.name]: p.schema.type === 'array' ? this.currentRequest[p.name].join(',') : this.currentRequest[p.name]
