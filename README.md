@@ -1,11 +1,22 @@
 # OpenAPI viewer component for VueJS
 
 This [Vue.js](https://vuejs.org/) component is designed to easily browse and test a REST API described
-with the [OpenAPI Specification](https://github.com/OAI/OpenAPI-Specification) (formerly known as Swagger Specification). This component follows Google [Material Design](https://material.google.com/) principles and relies on the [Vue Material](https://github.com/marcosmoura/vue-material) framework.
+with the [OpenAPI Specification](https://github.com/OAI/OpenAPI-Specification) (formerly known as Swagger Specification). This component follows Google [Material Design](https://material.google.com/) principles and relies on the [Vue Material](https://github.com/marcosmoura/vue-material) framework. It also relies on [vue-resource](https://github.com/pagekit/vue-resource) to perform API requests.
+
+See it in action :
+ * https://koumoul.com/s/geocoder/api-doc
 
 ## Install
 
-TODO (no npm built yet)
+npm :
+```
+npm install --save vue-openapi
+```
+
+yarn:
+```
+yarn add vue-openapi
+```
 
 ## Usage
 
