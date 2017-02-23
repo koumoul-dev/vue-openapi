@@ -2,3 +2,7 @@
 /test
 yarn.lock
 webpack.config.js
+.babelrc
+.editorconfig
+.eslintignore
+.eslintrc.js

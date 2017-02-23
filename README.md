@@ -19,31 +19,28 @@ yarn add vue-openapi
 ```
 
 ## Usage
-
 ```
 import Vue from 'vue'
 import VueMaterial from 'vue-material'
-import openapi from './OpenAPI.vue'
+import OpenApi from 'vue-openapi'
 import 'vue-material/dist/vue-material.css'
+import VueResource from 'vue-resource'
 
 import jsonApi from './swagger.json'
 
 Vue.use(VueMaterial)
-Vue.material.theme.register('default', {
-  primary: 'black',
-  accent: 'red'
-})
+Vue.use(VueResource)
 
 new Vue({
   el: '#app',
-  template: '<openapi v-bind:api="jsonApi" v-md-theme="\'default\'"></openapi>',
+  template: '<open-api v-if="jsonApi" :api="jsonApi"></open-api>',
   data: function(){
     return {
       jsonApi: jsonApi
     }
   },
   components: {
-    openapi
+    OpenApi
   }
 })
 ```
