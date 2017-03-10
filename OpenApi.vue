@@ -59,7 +59,7 @@
             </md-table-cell>
             <md-table-cell v-if="!selectedEntry.requestBody.content || !selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema"></md-table-cell>
             <md-table-cell v-if="selectedEntry.requestBody.content && selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema">
-              <md-icon class="md-accent" @click.native="openSchemaDialog(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema)" style="cursor:pointer">open_in_new</md-icon>
+              <md-icon class="md-accent" @click.native="openSchemaDialog(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schemaHTML)" style="cursor:pointer">open_in_new</md-icon>
             </md-table-cell>
             <md-table-cell>body</md-table-cell>
             <md-table-cell>
@@ -111,7 +111,7 @@
             </md-table-cell>
             <md-table-cell v-if="!response.content || !response.content[response.selectedType].schema"></md-table-cell>
             <md-table-cell v-if="response.content && response.content[response.selectedType].schema">
-              <md-icon class="md-accent" @click.native="openSchemaDialog(response.content[response.selectedType].schema)" style="cursor:pointer">open_in_new</md-icon>
+              <md-icon class="md-accent" @click.native="openSchemaDialog(response.content[response.selectedType].schemaHTML)" style="cursor:pointer">open_in_new</md-icon>
             </md-table-cell>
             <md-table-cell v-if="!response.content || !response.content[response.selectedType].examples"></md-table-cell>
             <md-table-cell v-if="response.content && response.content[response.selectedType].examples">
@@ -140,32 +140,36 @@
     <md-layout md-gutter md-column style="padding: 16px;">
       <h2>Request</h2>
       <form novalidate @submit.stop.prevent="submit" v-if="selectedEntry" id="request-form">
+        <md-input-container v-if="selectedEntry.requestBody">
+          <label>Payload</label>
+          <md-textarea v-model="currentRequest.requestBody"></md-textarea>
+        </md-input-container>
+
         <div v-for="parameter in selectedEntry.parameters">
           <md-input-container v-if="(parameter.schema.type === 'string' || parameter.schema.type === 'integer' || parameter.schema.type === 'number') && !parameter.schema.enum">
             <label>{{parameter.description}}</label>
-            <md-input v-model="currentRequest[parameter.name]" :type="parameter.schema.type === 'string' ? 'text' : 'number'" :placeholder="parameter.name"></md-input>
+            <md-input v-model="currentRequest.params[parameter.name]" :type="parameter.schema.type === 'string' ? 'text' : 'number'" :placeholder="parameter.name"></md-input>
           </md-input-container>
 
           <md-input-container v-if="parameter.schema.enum">
             <label>{{parameter.description}}</label>
-            <md-select v-model="currentRequest[parameter.name]" :placeholder="parameter.name">
+            <md-select v-model="currentRequest.params[parameter.name]" :placeholder="parameter.name">
               <md-option v-for="val in parameter.schema.enum" :value="val">{{val}}</md-option>
             </md-select>
           </md-input-container>
 
           <md-input-container v-if="parameter.schema.type === 'array' && parameter.schema.items.enum">
             <label>{{parameter.description}}</label>
-            <md-select v-model="currentRequest[parameter.name]" multiple :placeholder="parameter.name">
+            <md-select v-model="currentRequest.params[parameter.name]" multiple :placeholder="parameter.name">
               <md-option v-for="val in parameter.schema.items.enum" :value="val">{{val}}</md-option>
             </md-select>
           </md-input-container>
 
-          <md-chips v-model="currentRequest[parameter.name]" :md-input-placeholder="parameter.name" :md-input-type="parameter.schema.items.type" v-if="parameter.schema.type === 'array' && !parameter.schema.items.enum">
-            <template scope="chip">{{ chip.value }}
-</template>
+          <md-chips v-model="currentRequest.params[parameter.name]" :md-input-placeholder="parameter.name" :md-input-type="parameter.schema.items.type" v-if="parameter.schema.type === 'array' && !parameter.schema.items.enum">
+            <template scope="chip">{{ chip.value }}</template>
           </md-chips>
 
-          <md-checkbox v-if="parameter.schema.type === 'boolean'" v-model="currentRequest[parameter.name]">{{parameter.name}}<md-tooltip md-direction="top">{{parameter.description}}</md-tooltip></md-checkbox>
+          <md-checkbox v-if="parameter.schema.type === 'boolean'" v-model="currentRequest.params[parameter.name]">{{parameter.name}}<md-tooltip md-direction="top">{{parameter.description}}</md-tooltip></md-checkbox>
 
         </div>
       </form>
@@ -210,6 +214,9 @@ function processContent(contentType, api) {
     contentType.examples.push(contentType.example)
   }
   if (contentType.examples) {
+    if(!contentType.example && contentType.examples.length){
+      contentType.example = contentType.examples[0]
+    }
     contentType.examples = contentType.examples.map(e => '<pre>' + JSON.stringify(e, null, 2) + '</pre>')
   }
   if (contentType.schema) {
@@ -219,7 +226,7 @@ function processContent(contentType, api) {
       contentType.schema.items = get(api, contentType.schema.items.$ref.split('#/').pop().replace(/\//g, '.'))
     }
     if (typeof contentType.schema !== 'string') {
-      contentType.schema = '<pre>' + JSON.stringify(contentType.schema, null, 2) + '</pre>'
+      contentType.schemaHTML = '<pre>' + JSON.stringify(contentType.schema, null, 2) + '</pre>'
     }
   }
 }
@@ -304,10 +311,15 @@ export default {
   },
   methods: {
     resetRequest(entry) {
-      for (var p in this.currentRequest) delete this.currentRequest[p]
-      this.currentRequest = Object.assign({}, this.currentRequest, ...(entry.parameters || []).map(p => ({
+      // for (var p in this.currentRequest) delete this.currentRequest[p]
+
+      this.currentRequest.params = Object.assign({}, ...(entry.parameters || []).map(p => ({
         [p.name]: p.schema.enum ? p.schema.enum[0] : (p.schema.type === 'array' ? [] : null)
       })))
+      if(entry.requestBody){
+        this.currentRequest.contentType = Object.keys(entry.requestBody.content)[0]
+        this.currentRequest.requestBody = entry.requestBody.content[this.currentRequest.contentType].example || ''
+      }
     },
     select(entry) {
       this.resetRequest(entry)
@@ -331,19 +343,31 @@ export default {
     },
     request() {
       this.currentResponse = ''
-      let params = Object.assign({}, ...(this.selectedEntry.parameters || []).filter(p => p.in === 'query' && (p.schema.type === 'array' ? this.currentRequest[p.name].length : this.currentRequest[p.name]))
+      let params = Object.assign({}, ...(this.selectedEntry.parameters || []).filter(p => p.in === 'query' && (p.schema.type === 'array' ? this.currentRequest.params[p.name].length : this.currentRequest.params[p.name]))
         .map(p => ({
           // TODO : join character for array should depend of p.style
-          [p.name]: p.schema.type === 'array' ? this.currentRequest[p.name].join(',') : this.currentRequest[p.name]
+          [p.name]: p.schema.type === 'array' ? this.currentRequest.params[p.name].join(',') : this.currentRequest.params[p.name]
         }))
       )
-      this.$http({
+      let headers = Object.assign({}, ...(this.selectedEntry.parameters || []).filter(p => p.in === 'header' && (p.schema.type === 'array' ? this.currentRequest.params[p.name].length : this.currentRequest.params[p.name]))
+        .map(p => ({
+          // TODO : join character for array should depend of p.style
+          [p.name]: p.schema.type === 'array' ? this.currentRequest.params[p.name].join(',') : this.currentRequest.params[p.name]
+        }))
+      )
+      let request = {
         method: this.selectedEntry.method,
         url: this.api.servers[0].url + this.selectedEntry.path.replace(/{(\w*)}/g, (m, key) => {
-          return this.currentRequest[key]
+          return this.currentRequest.params[key]
         }),
-        params
-      }).then(response => {
+        params,
+        headers
+      }
+      if(this.selectedEntry.requestBody){
+        request.headers['Content-type'] = this.currentRequest.contentType
+        request.body = this.currentRequest.requestBody
+      }
+      this.$http(request).then(response => {
         this.currentResponse = JSON.stringify(response.body, null, 2)
       }, response => {
         this.currentResponse = JSON.stringify(response.body, null, 2)
