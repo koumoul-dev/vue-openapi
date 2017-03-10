@@ -212,8 +212,10 @@
           "name": "petId",
           "description": "ID of pet that needs to be fetched",
           "required": true,
-          "type": "integer",
-          "format": "int64"
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
         }],
         "responses": {
           "200": {
@@ -259,7 +261,9 @@
           "name": "petId",
           "description": "ID of pet that needs to be updated",
           "required": true,
-          "type": "string"
+          "schema": {
+            "type": "string"
+          }
         }],
         "responses": {
           "405": {
@@ -306,14 +310,18 @@
           "name": "api_key",
           "description": "",
           "required": true,
-          "type": "string"
+          "schema": {
+            "type": "string"
+          }
         }, {
           "in": "path",
           "name": "petId",
           "description": "Pet id to delete",
           "required": true,
-          "type": "integer",
-          "format": "int64"
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
         }],
         "responses": {
           "400": {
@@ -382,7 +390,9 @@
           "name": "orderId",
           "description": "ID of pet that needs to be fetched",
           "required": true,
-          "type": "string"
+          "schema": {
+            "type": "string"
+          }
         }],
         "responses": {
           "200": {
@@ -420,7 +430,9 @@
           "name": "orderId",
           "description": "ID of the order that needs to be deleted",
           "required": true,
-          "type": "string"
+          "schema": {
+            "type": "string"
+          }
         }],
         "responses": {
           "400": {
@@ -529,14 +541,18 @@
           "name": "username",
           "description": "The user name for login",
           "required": false,
-          "type": "string"
+          "schema": {
+            "type": "string"
+          }
         }, {
           "in": "query",
           "name": "password",
           "description": "The password for login in clear text",
           "required": false,
-          "type": "string",
-          "format": "password"
+          "schema": {
+            "type": "string",
+            "format": "password"
+          }
         }],
         "responses": {
           "200": {
@@ -588,7 +604,9 @@
           "name": "username",
           "description": "The name that needs to be fetched. Use user1 for testing. ",
           "required": true,
-          "type": "string"
+          "schema": {
+            "type": "string"
+          }
         }],
         "responses": {
           "200": {
@@ -626,7 +644,9 @@
           "name": "username",
           "description": "name that need to be deleted",
           "required": true,
-          "type": "string"
+          "schema": {
+            "type": "string"
+          }
         }],
         "responses": {
           "400": {
@@ -659,7 +679,9 @@
           "name": "username",
           "description": "The name that needs to be deleted",
           "required": true,
-          "type": "string"
+          "schema": {
+            "type": "string"
+          }
         }],
         "responses": {
           "400": {

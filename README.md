@@ -50,7 +50,8 @@ new Vue({
 
 ## Resources
 
- * [swagger2openapi](https://github.com/Mermade/swagger2openapi) let you convert Swagger 2.0 definitions into OpenApi 3.0.x
+* [Awesome OpenApi 3](https://github.com/Mermade/awesome-openapi3) list various projects related to OpenApi 3.0.x
+* [swagger2openapi](https://github.com/Mermade/swagger2openapi) let you convert Swagger 2.0 definitions into OpenApi 3.0.x
 
 ## Similar projects
 
