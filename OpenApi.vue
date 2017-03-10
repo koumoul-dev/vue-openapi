@@ -1,34 +1,41 @@
 <template>
 <md-layout md-column>
-  <md-layout md-align="center"><h2 class="md-display-1">Documentation for API {{api.servers[0].url}}</h2></md-layout>
+  <md-layout md-align="center">
+    <h2 class="md-display-1">Documentation for API {{api.servers[0].url}}</h2>
+  </md-layout>
   <md-layout md-row>
     <md-layout md-flex="25">
-      <md-list class="md-dense" ref="menu">
-        <md-list-item v-for="(entries, tag) in tags" md-expand-multiple>
-          <span class="md-title">{{tag}}</span>
-          <md-list-expand>
-            <md-list>
-              <md-list-item v-for="entry in entries" @click.native="select(entry)">
-                <md-subheader class="md-title" :class="{'md-accent':selectedEntry === entry}" v-html="entry.path.replace(/\//g,'<b>/</b>')"></md-subheader>
-                <md-subheader :md-theme="entry.method" class="md-primary">{{entry.method}}</md-subheader>
-              </md-list-item>
-            </md-list>
-          </md-list-expand>
-        </md-list-item>
-      </md-list>
+      <md-layout>
+        <md-list class="md-dense" ref="menu">
+          <md-list-item v-for="(entries, tag) in tags" md-expand-multiple>
+            <span class="md-title">{{tag}}</span>
+            <md-list-expand>
+              <md-list>
+                <md-list-item v-for="entry in entries" @click.native="select(entry)">
+                  <md-subheader class="md-title" :class="{'md-accent':selectedEntry === entry}" v-html="entry.path.replace(/\//g,'<b>/</b>')"></md-subheader>
+                  <md-subheader :md-theme="entry.method" class="md-primary">{{entry.method}}</md-subheader>
+                </md-list-item>
+              </md-list>
+            </md-list-expand>
+          </md-list-item>
+        </md-list>
+      </md-layout>
+      <md-layout md-flex="true"></md-layout>
     </md-layout>
 
     <md-layout md-flex="75" v-if="selectedEntry" md-column>
       <h3 class="md-headline">{{selectedEntry.summary}}</h3>
-      <md-layout>
+      <div>
         <md-button class="md-raised md-primary" @click.native="openSidenav">Make request</md-button>
-      </md-layout>
+      </div>
+
       <!-- <div v-if="selectedEntry.description">
         <h4>Implementation Notes</h4> {{selectedEntry.description}}
       </div> -->
 
-      <h4 v-if="selectedEntry.parameters">Parameters</h4>
-      <md-table v-if="selectedEntry.parameters">
+
+      <h4 v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">Parameters</h4>
+      <md-table v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">
         <md-table-header>
           <md-table-row>
             <md-table-head>Name</md-table-head>
@@ -41,14 +48,36 @@
         </md-table-header>
 
         <md-table-body>
+          <md-table-row v-if="selectedEntry.requestBody">
+            <md-table-cell>Payload</md-table-cell>
+            <md-table-cell>Request body</md-table-cell>
+            <md-table-cell v-if="!selectedEntry.requestBody.content"></md-table-cell>
+            <md-table-cell v-if="selectedEntry.requestBody.content">
+              <md-select v-model="selectedEntry.requestBody.selectedType">
+                <md-option v-for="(value, content) in selectedEntry.requestBody.content" :value="content">{{content}}</md-option>
+              </md-select>
+            </md-table-cell>
+            <md-table-cell v-if="!selectedEntry.requestBody.content || !selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema"></md-table-cell>
+            <md-table-cell v-if="selectedEntry.requestBody.content && selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema">
+              <md-icon class="md-accent" @click.native="openSchemaDialog(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema)" style="cursor:pointer">open_in_new</md-icon>
+            </md-table-cell>
+            <md-table-cell>body</md-table-cell>
+            <md-table-cell>
+              <md-checkbox v-model="selectedEntry.requestBody.required" disabled></md-checkbox>
+            </md-table-cell>
+          </md-table-row>
+
+
           <md-table-row v-for="parameter in selectedEntry.parameters">
             <md-table-cell>{{parameter.name}}</md-table-cell>
             <md-table-cell v-html="parameter.description"></md-table-cell>
             <md-table-cell v-if="parameter.schema.type !== 'array'">{{parameter.schema.type}}</md-table-cell>
-            <md-table-cell v-if="parameter.schema.type === 'array'">{{toDash(parameter.style)}} {{parameter.schema.items.type}}</md-table-cell>
+            <md-table-cell v-if="parameter.schema.type === 'array'">{{parameter.schema.items.type}} {{parameter.schema.type}}</md-table-cell>
             <md-table-cell v-if="parameter.schema.type !== 'array' && parameter.schema.enum">{{parameter.schema.enum.join(', ')}}</md-table-cell>
             <md-table-cell v-if="parameter.schema.type !== 'array' && !parameter.schema.enum"></md-table-cell>
-            <md-table-cell v-if="parameter.schema.type === 'array'"><div style="overflow-y:scroll;max-height:200px;">{{(parameter.schema.items.enum || []).join(', ')}}</div></md-table-cell>
+            <md-table-cell v-if="parameter.schema.type === 'array'">
+              <div style="overflow-y:scroll;max-height:200px;">{{(parameter.schema.items.enum || []).join(', ')}}</div>
+            </md-table-cell>
             <md-table-cell>{{parameter.in}}</md-table-cell>
             <md-table-cell>
               <md-checkbox v-model="parameter.required" disabled></md-checkbox>
@@ -56,6 +85,7 @@
           </md-table-row>
         </md-table-body>
       </md-table>
+
 
       <h4>Responses</h4>
       <md-table>
@@ -90,7 +120,7 @@
           </md-table-row>
         </md-table-body>
       </md-table>
-
+      <md-layout md-flex="true"></md-layout>
     </md-layout>
   </md-layout>
 
@@ -131,7 +161,8 @@
           </md-input-container>
 
           <md-chips v-model="currentRequest[parameter.name]" :md-input-placeholder="parameter.name" :md-input-type="parameter.schema.items.type" v-if="parameter.schema.type === 'array' && !parameter.schema.items.enum">
-            <template scope="chip">{{ chip.value }}</template>
+            <template scope="chip">{{ chip.value }}
+</template>
           </md-chips>
 
           <md-checkbox v-if="parameter.schema.type === 'boolean'" v-model="currentRequest[parameter.name]">{{parameter.name}}<md-tooltip md-direction="top">{{parameter.description}}</md-tooltip></md-checkbox>
@@ -163,6 +194,36 @@
 </style>
 
 <script>
+import get from 'lodash.get'
+
+const defaultStyle = {
+  query: 'form',
+  path: 'simple',
+  header: 'simple',
+  cookie: 'form'
+}
+
+function processContent(contentType, api) {
+  // Spec allow an item or an array, we always fall back on an array of examples
+  if (contentType.example) {
+    contentType.examples = contentType.examples || []
+    contentType.examples.push(contentType.example)
+  }
+  if (contentType.examples) {
+    contentType.examples = contentType.examples.map(e => '<pre>' + JSON.stringify(e, null, 2) + '</pre>')
+  }
+  if (contentType.schema) {
+    if (contentType.schema.$ref) {
+      contentType.schema = get(api, contentType.schema.$ref.split('#/').pop().replace(/\//g, '.'))
+    } else if (contentType.schema.items && contentType.schema.items.$ref) {
+      contentType.schema.items = get(api, contentType.schema.items.$ref.split('#/').pop().replace(/\//g, '.'))
+    }
+    if (typeof contentType.schema !== 'string') {
+      contentType.schema = '<pre>' + JSON.stringify(contentType.schema, null, 2) + '</pre>'
+    }
+  }
+}
+
 export default {
   name: 'open-api',
   props: ['api'],
@@ -200,32 +261,40 @@ export default {
           entry.method = method
           entry.path = path
             // Filling tags entries
-          self.api.paths[path][method].tags = self.api.paths[path][method].tags ||  []
-          if (!self.api.paths[path][method].tags.length) {
-            self.api.paths[path][method].tags.push('No category')
+          entry.tags = entry.tags ||  []
+          if (!entry.tags.length) {
+            entry.tags.push('No category')
           }
-          self.api.paths[path][method].tags.forEach(function(tag) {
-              tags[tag] = tags[tag] || []
-              tags[tag].push(entry)
+          entry.tags.forEach(function(tag) {
+            tags[tag] = tags[tag] || []
+            tags[tag].push(entry)
+          })
+          if (entry.parameters) {
+            entry.parameters.forEach(p => {
+              p.style = p.style || defaultStyle[p.in]
+              p.explode = p.explode || (p.style === 'form')
+              p.schema = p.schema || {
+                type: 'string'
+              }
             })
-            // Some preprocessing with responses
+          }
+          if (entry.requestBody) {
+            if (entry.requestBody.$ref) {
+              entry.requestBody = get(self.api, entry.requestBody.$ref.split('#/').pop().replace(/\//g, '.'))
+            }
+            if (entry.requestBody.content) {
+              entry.requestBody.selectedType = Object.keys(entry.requestBody.content)[0]
+              entry.requestBody.required = true
+              Object.values(entry.requestBody.content).forEach(contentType => processContent(contentType, self.api))
+            }
+          }
+
+          // Some preprocessing with responses
           Object.values(entry.responses).forEach(response => {
             if (response.content) {
               // preselecting responses mime-type
               response.selectedType = Object.keys(response.content)[0]
-              Object.values(response.content).forEach(contentType => {
-                // Spec allow an item or an array, we always fall back on an array of examples
-                if (contentType.example) {
-                  contentType.examples = contentType.examples || []
-                  contentType.examples.push(contentType.example)
-                }
-                if (contentType.examples) {
-                  contentType.examples = contentType.examples.map(e => '<pre>' + JSON.stringify(e, null, 2) + '</pre>')
-                }
-                if (contentType.schema) {
-                  contentType.schema = '<pre>' + JSON.stringify(contentType.schema, null, 2) + '</pre>'
-                }
-              })
+              Object.values(response.content).forEach(contentType => processContent(contentType, self.api))
             }
           })
         })
@@ -278,11 +347,6 @@ export default {
         this.currentResponse = JSON.stringify(response.body, null, 2)
       }, response => {
         this.currentResponse = JSON.stringify(response.body, null, 2)
-      })
-    },
-    toDash(str) {
-      return str.replace(/([A-Z])/g, function($1) {
-        return "-" + $1.toLowerCase()
       })
     }
   }
