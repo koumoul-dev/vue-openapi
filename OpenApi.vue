@@ -1,9 +1,11 @@
 <template>
 <div style="position:relative;overflow-x:hidden;flex:1;">
   <md-layout md-column>
-    <md-layout md-align="center">
-      <h2 class="md-display-1">Endpoint {{api.servers[0].url}}</h2>
-    </md-layout>
+
+    <h2 class="md-display-2">{{api.info.title}}</h2>
+
+    <p v-html="api.info.description"></p>
+
     <md-layout md-row>
       <md-list class="md-dense" ref="menu">
         <md-list-item v-for="(entries, tag) in tags" md-expand-multiple>
@@ -99,7 +101,7 @@
           <md-table-body>
             <md-table-row v-for="(response, code) in selectedEntry.responses">
               <md-table-cell>{{code}}</md-table-cell>
-              <md-table-cell>{{response.description}}</md-table-cell>
+              <md-table-cell v-html="response.description"></md-table-cell>
               <md-table-cell v-if="!response.content"></md-table-cell>
               <md-table-cell v-if="response.content">
                 <md-select v-model="response.selectedType">
