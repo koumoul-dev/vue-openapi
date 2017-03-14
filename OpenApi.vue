@@ -146,20 +146,20 @@
 
         <div v-for="parameter in selectedEntry.parameters">
           <md-input-container v-if="(parameter.schema.type === 'string' || parameter.schema.type === 'integer' || parameter.schema.type === 'number') && !parameter.schema.enum">
-            <label>{{parameter.description}}</label>
-            <md-input v-model="currentRequest.params[parameter.name]" :type="parameter.schema.type === 'string' ? 'text' : 'number'" :placeholder="parameter.name"></md-input>
+            <label>{{parameter.name}}</label>
+            <md-input v-model="currentRequest.params[parameter.name]" :type="parameter.schema.type === 'string' ? 'text' : 'number'"></md-input>
           </md-input-container>
 
           <md-input-container v-if="parameter.schema.enum">
-            <label>{{parameter.description}}</label>
-            <md-select v-model="currentRequest.params[parameter.name]" :placeholder="parameter.name">
+            <label>{{parameter.name}}</label>
+            <md-select v-model="currentRequest.params[parameter.name]">
               <md-option v-for="val in parameter.schema.enum" :value="val">{{val}}</md-option>
             </md-select>
           </md-input-container>
 
           <md-input-container v-if="parameter.schema.type === 'array' && parameter.schema.items.enum">
-            <label>{{parameter.description}}</label>
-            <md-select v-model="currentRequest.params[parameter.name]" multiple :placeholder="parameter.name">
+            <label>{{parameter.name}}</label>
+            <md-select v-model="currentRequest.params[parameter.name]" multiple>
               <md-option v-for="val in parameter.schema.items.enum" :value="val">{{val}}</md-option>
             </md-select>
           </md-input-container>
@@ -168,7 +168,7 @@
             <template scope="chip">{{ chip.value }}</template>
           </md-chips>
 
-          <md-checkbox v-if="parameter.schema.type === 'boolean'" v-model="currentRequest.params[parameter.name]">{{parameter.name}}<md-tooltip md-direction="top">{{parameter.description}}</md-tooltip></md-checkbox>
+          <md-checkbox v-if="parameter.schema.type === 'boolean'" v-model="currentRequest.params[parameter.name]">{{parameter.name}}</md-checkbox>
 
         </div>
       </form>
