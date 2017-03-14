@@ -1,28 +1,10 @@
 <template>
 <div style="position:relative;overflow-x:hidden;flex:1;">
   <md-layout md-column>
-    <!-- <md-layout md-align="center">
-      <md-layout md-flex="80" md-align="center">
-        <h2 class="md-display-2">Documentation de l'API</h2>
-      </md-layout>
-
-      <md-layout md-flex="80" md-align="center">
-        <p>Cette documentation s'adresse aux développeurs et décrit l'ensemble des opérations de l'API entreprise.
-          Le format de cette documentation est basé sur la spécification <a href="https://www.openapis.org/">OpenAPI 3.0</a> qui est le successeur de Swagger.
-          Cette documentation peut être chargée dans n'importe quel lecteur compatible avec le format OpenAPI 3.0 en utilisant le lien vers le <a href='./api-docs.json'>fichier source</a>.
-        </p>
-      </md-layout>
-
-      <md-layout md-flex="80" md-align="center">
-        <p>Cette API est utilisable gratuitement sans conditions, mais l'utilisation est alors très réduite. Pour pouvoir l'utiliser plus largement, il faut créer un compte sur <a href="https://koumoul.com">notre site</a> et utiliser votre <a href="/t/my-access">jeton d'authentification</a> pour faire les requêtes. Vous trouverez plus de détails sur les plans et conditions d'utilisation de nos service <a href="/t/">à cette page</a>.</p>
-      </md-layout>
-    </md-layout> -->
     <md-layout md-row md-flex="90" md-align="center">
       <md-layout md-column md-flex="65">
-        <md-layout>
-          <h2 class="md-display-2">{{api.info.title}}</h2>
-        </md-layout>
-        <md-layout v-html="marked(api.info.description)"></md-layout>
+        <h2 class="md-display-2">{{api.info.title}}</h2>
+        <div v-html="marked(api.info.description)"></div>
       </md-layout>
       <md-layout md-flex="5"></md-layout>
       <md-layout md-column md-flex="20">
