@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "lodash.get": "^4.4.2",
+    "marked": "^0.3.6",
     "vue-material": "^0.7.1",
     "vue-resource": "^1.0.3"
   },

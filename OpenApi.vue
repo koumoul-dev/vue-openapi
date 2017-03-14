@@ -1,10 +1,52 @@
 <template>
 <div style="position:relative;overflow-x:hidden;flex:1;">
   <md-layout md-column>
+    <!-- <md-layout md-align="center">
+      <md-layout md-flex="80" md-align="center">
+        <h2 class="md-display-2">Documentation de l'API</h2>
+      </md-layout>
 
-    <h2 class="md-display-2">{{api.info.title}}</h2>
+      <md-layout md-flex="80" md-align="center">
+        <p>Cette documentation s'adresse aux développeurs et décrit l'ensemble des opérations de l'API entreprise.
+          Le format de cette documentation est basé sur la spécification <a href="https://www.openapis.org/">OpenAPI 3.0</a> qui est le successeur de Swagger.
+          Cette documentation peut être chargée dans n'importe quel lecteur compatible avec le format OpenAPI 3.0 en utilisant le lien vers le <a href='./api-docs.json'>fichier source</a>.
+        </p>
+      </md-layout>
 
-    <p v-html="api.info.description"></p>
+      <md-layout md-flex="80" md-align="center">
+        <p>Cette API est utilisable gratuitement sans conditions, mais l'utilisation est alors très réduite. Pour pouvoir l'utiliser plus largement, il faut créer un compte sur <a href="https://koumoul.com">notre site</a> et utiliser votre <a href="/t/my-access">jeton d'authentification</a> pour faire les requêtes. Vous trouverez plus de détails sur les plans et conditions d'utilisation de nos service <a href="/t/">à cette page</a>.</p>
+      </md-layout>
+    </md-layout> -->
+    <md-layout md-row md-flex="90" md-align="center">
+      <md-layout md-column md-flex="65">
+        <md-layout>
+          <h2 class="md-display-2">{{api.info.title}}</h2>
+        </md-layout>
+        <md-layout v-html="marked(api.info.description)"></md-layout>
+      </md-layout>
+      <md-layout md-flex="5"></md-layout>
+      <md-layout md-column md-flex="20">
+        <md-layout md-flex="true"></md-layout>
+        <md-card>
+          <md-list>
+            <md-list-item>
+              <md-icon>home</md-icon> <span><a :href="api.info.contact.url">{{api.info.contact.name}}</a></span>
+            </md-list-item>
+            <md-list-item>
+              <md-icon>email</md-icon> <span><a :href="'mailto:'+api.info.contact.email">{{api.info.contact.email}}</a></span>
+            </md-list-item>
+            <md-list-item>
+              <md-icon>label</md-icon> <span>{{api.info.version}}</span>
+            </md-list-item>
+            <md-list-item>
+              <md-icon>description</md-icon> <span><a :href="api.info.termsOfService">Terms of Service</a></span>
+            </md-list-item>
+          </md-list>
+        </md-card>
+        <md-layout md-flex="true"></md-layout>
+        <!-- <div><img src="../../assets/population.svg" alt="logo datainfogreffe.fr" style="height:300px;"></div> -->
+      </md-layout>
+    </md-layout>
 
     <md-layout md-row>
       <md-list class="md-dense" ref="menu">
@@ -23,104 +65,104 @@
 
       <md-layout md-flex-offset="5" md-flex="true" v-if="selectedEntry">
         <md-layout md-column>
-        <h3 class="md-headline">{{selectedEntry.summary}}</h3>
-        <div>
-          <md-button class="md-raised md-primary" @click.native="openSidenav">Make request</md-button>
-        </div>
+          <h3 class="md-headline">{{selectedEntry.summary}}</h3>
+          <div>
+            <md-button class="md-raised md-primary" @click.native="openSidenav">Make request</md-button>
+          </div>
 
-        <!-- <div v-if="selectedEntry.description">
+          <!-- <div v-if="selectedEntry.description">
           <h4>Implementation Notes</h4> {{selectedEntry.description}}
         </div> -->
 
 
-        <h4 v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">Parameters</h4>
-        <md-table v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">
-          <md-table-header>
-            <md-table-row>
-              <md-table-head>Name</md-table-head>
-              <md-table-head>Description</md-table-head>
-              <md-table-head>Type</md-table-head>
-              <md-table-head>Values</md-table-head>
-              <md-table-head>Location</md-table-head>
-              <md-table-head>Required</md-table-head>
-            </md-table-row>
-          </md-table-header>
+          <h4 v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">Parameters</h4>
+          <md-table v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">
+            <md-table-header>
+              <md-table-row>
+                <md-table-head>Name</md-table-head>
+                <md-table-head>Description</md-table-head>
+                <md-table-head>Type</md-table-head>
+                <md-table-head>Values</md-table-head>
+                <md-table-head>Location</md-table-head>
+                <md-table-head>Required</md-table-head>
+              </md-table-row>
+            </md-table-header>
 
-          <md-table-body>
-            <md-table-row v-if="selectedEntry.requestBody">
-              <md-table-cell>Payload</md-table-cell>
-              <md-table-cell>Request body</md-table-cell>
-              <md-table-cell v-if="!selectedEntry.requestBody.content"></md-table-cell>
-              <md-table-cell v-if="selectedEntry.requestBody.content">
-                <md-select v-model="selectedEntry.requestBody.selectedType">
-                  <md-option v-for="(value, content) in selectedEntry.requestBody.content" :value="content">{{content}}</md-option>
-                </md-select>
-              </md-table-cell>
-              <md-table-cell v-if="!selectedEntry.requestBody.content || !selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema"></md-table-cell>
-              <md-table-cell v-if="selectedEntry.requestBody.content && selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema">
-                <md-icon class="md-accent" @click.native="openSchemaDialog(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schemaHTML)" style="cursor:pointer">open_in_new</md-icon>
-              </md-table-cell>
-              <md-table-cell>body</md-table-cell>
-              <md-table-cell>
-                <md-checkbox v-model="selectedEntry.requestBody.required" disabled></md-checkbox>
-              </md-table-cell>
-            </md-table-row>
-
-
-            <md-table-row v-for="parameter in selectedEntry.parameters">
-              <md-table-cell>{{parameter.name}}</md-table-cell>
-              <md-table-cell v-html="parameter.description"></md-table-cell>
-              <md-table-cell v-if="parameter.schema.type !== 'array'">{{parameter.schema.type}}</md-table-cell>
-              <md-table-cell v-if="parameter.schema.type === 'array'">{{parameter.schema.items.type}} {{parameter.schema.type}}</md-table-cell>
-              <md-table-cell v-if="parameter.schema.type !== 'array' && parameter.schema.enum">{{parameter.schema.enum.join(', ')}}</md-table-cell>
-              <md-table-cell v-if="parameter.schema.type !== 'array' && !parameter.schema.enum"></md-table-cell>
-              <md-table-cell v-if="parameter.schema.type === 'array'">
-                <div style="overflow-y:scroll;max-height:200px;">{{(parameter.schema.items.enum || []).join(', ')}}</div>
-              </md-table-cell>
-              <md-table-cell>{{parameter.in}}</md-table-cell>
-              <md-table-cell>
-                <md-checkbox v-model="parameter.required" disabled></md-checkbox>
-              </md-table-cell>
-            </md-table-row>
-          </md-table-body>
-        </md-table>
+            <md-table-body>
+              <md-table-row v-if="selectedEntry.requestBody">
+                <md-table-cell>Payload</md-table-cell>
+                <md-table-cell>Request body</md-table-cell>
+                <md-table-cell v-if="!selectedEntry.requestBody.content"></md-table-cell>
+                <md-table-cell v-if="selectedEntry.requestBody.content">
+                  <md-select v-model="selectedEntry.requestBody.selectedType">
+                    <md-option v-for="(value, content) in selectedEntry.requestBody.content" :value="content">{{content}}</md-option>
+                  </md-select>
+                </md-table-cell>
+                <md-table-cell v-if="!selectedEntry.requestBody.content || !selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema"></md-table-cell>
+                <md-table-cell v-if="selectedEntry.requestBody.content && selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema">
+                  <md-icon class="md-accent" @click.native="openSchemaDialog(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schemaHTML)" style="cursor:pointer">open_in_new</md-icon>
+                </md-table-cell>
+                <md-table-cell>body</md-table-cell>
+                <md-table-cell>
+                  <md-checkbox v-model="selectedEntry.requestBody.required" disabled></md-checkbox>
+                </md-table-cell>
+              </md-table-row>
 
 
-        <h4>Responses</h4>
-        <md-table>
-          <md-table-header>
-            <md-table-row>
-              <md-table-head>HTTP Code</md-table-head>
-              <md-table-head>Response</md-table-head>
-              <md-table-head>Type</md-table-head>
-              <md-table-head>Schema</md-table-head>
-              <md-table-head>Examples</md-table-head>
-            </md-table-row>
-          </md-table-header>
+              <md-table-row v-for="parameter in selectedEntry.parameters">
+                <md-table-cell>{{parameter.name}}</md-table-cell>
+                <md-table-cell v-html="marked(parameter.description)"></md-table-cell>
+                <md-table-cell v-if="parameter.schema.type !== 'array'">{{parameter.schema.type}}</md-table-cell>
+                <md-table-cell v-if="parameter.schema.type === 'array'">{{parameter.schema.items.type}} {{parameter.schema.type}}</md-table-cell>
+                <md-table-cell v-if="parameter.schema.type !== 'array' && parameter.schema.enum">{{parameter.schema.enum.join(', ')}}</md-table-cell>
+                <md-table-cell v-if="parameter.schema.type !== 'array' && !parameter.schema.enum"></md-table-cell>
+                <md-table-cell v-if="parameter.schema.type === 'array'">
+                  <div style="overflow-y:scroll;max-height:200px;">{{(parameter.schema.items.enum || []).join(', ')}}</div>
+                </md-table-cell>
+                <md-table-cell>{{parameter.in}}</md-table-cell>
+                <md-table-cell>
+                  <md-checkbox v-model="parameter.required" disabled></md-checkbox>
+                </md-table-cell>
+              </md-table-row>
+            </md-table-body>
+          </md-table>
 
-          <md-table-body>
-            <md-table-row v-for="(response, code) in selectedEntry.responses">
-              <md-table-cell>{{code}}</md-table-cell>
-              <md-table-cell v-html="response.description"></md-table-cell>
-              <md-table-cell v-if="!response.content"></md-table-cell>
-              <md-table-cell v-if="response.content">
-                <md-select v-model="response.selectedType">
-                  <md-option v-for="(value, content) in response.content" :value="content">{{content}}</md-option>
-                </md-select>
-              </md-table-cell>
-              <md-table-cell v-if="!response.content || !response.content[response.selectedType].schema"></md-table-cell>
-              <md-table-cell v-if="response.content && response.content[response.selectedType].schema">
-                <md-icon class="md-accent" @click.native="openSchemaDialog(response.content[response.selectedType].schemaHTML)" style="cursor:pointer">open_in_new</md-icon>
-              </md-table-cell>
-              <md-table-cell v-if="!response.content || !response.content[response.selectedType].examples"></md-table-cell>
-              <md-table-cell v-if="response.content && response.content[response.selectedType].examples">
-                <md-icon class="md-accent" @click.native="openExamplesDialog(response.content[response.selectedType].examples.join('<hr>'))" style="cursor:pointer">open_in_new</md-icon>
-              </md-table-cell>
-            </md-table-row>
-          </md-table-body>
-        </md-table>
-        <md-layout md-flex="true"></md-layout>
-      </md-layout>
+
+          <h4>Responses</h4>
+          <md-table>
+            <md-table-header>
+              <md-table-row>
+                <md-table-head>HTTP Code</md-table-head>
+                <md-table-head>Response</md-table-head>
+                <md-table-head>Type</md-table-head>
+                <md-table-head>Schema</md-table-head>
+                <md-table-head>Examples</md-table-head>
+              </md-table-row>
+            </md-table-header>
+
+            <md-table-body>
+              <md-table-row v-for="(response, code) in selectedEntry.responses">
+                <md-table-cell>{{code}}</md-table-cell>
+                <md-table-cell v-html="marked(response.description)"></md-table-cell>
+                <md-table-cell v-if="!response.content"></md-table-cell>
+                <md-table-cell v-if="response.content">
+                  <md-select v-model="response.selectedType">
+                    <md-option v-for="(value, content) in response.content" :value="content">{{content}}</md-option>
+                  </md-select>
+                </md-table-cell>
+                <md-table-cell v-if="!response.content || !response.content[response.selectedType].schema"></md-table-cell>
+                <md-table-cell v-if="response.content && response.content[response.selectedType].schema">
+                  <md-icon class="md-accent" @click.native="openSchemaDialog(response.content[response.selectedType].schemaHTML)" style="cursor:pointer">open_in_new</md-icon>
+                </md-table-cell>
+                <md-table-cell v-if="!response.content || !response.content[response.selectedType].examples"></md-table-cell>
+                <md-table-cell v-if="response.content && response.content[response.selectedType].examples">
+                  <md-icon class="md-accent" @click.native="openExamplesDialog(response.content[response.selectedType].examples.join('<hr>'))" style="cursor:pointer">open_in_new</md-icon>
+                </md-table-cell>
+              </md-table-row>
+            </md-table-body>
+          </md-table>
+          <md-layout md-flex="true"></md-layout>
+        </md-layout>
       </md-layout>
     </md-layout>
   </md-layout>
@@ -167,7 +209,8 @@
           </md-input-container>
 
           <md-chips v-model="currentRequest.params[parameter.name]" :md-input-placeholder="parameter.name" :md-input-type="parameter.schema.items.type" v-if="parameter.schema.type === 'array' && !parameter.schema.items.enum">
-            <template scope="chip">{{ chip.value }}</template>
+            <template scope="chip">{{ chip.value }}
+</template>
           </md-chips>
 
           <md-checkbox v-if="parameter.schema.type === 'boolean'" v-model="currentRequest.params[parameter.name]">{{parameter.name}}</md-checkbox>
@@ -200,6 +243,7 @@
 
 <script>
 import get from 'lodash.get'
+import marked from 'marked'
 
 const defaultStyle = {
   query: 'form',
@@ -215,7 +259,7 @@ function processContent(contentType, api) {
     contentType.examples.push(contentType.example)
   }
   if (contentType.examples) {
-    if(!contentType.example && contentType.examples.length){
+    if (!contentType.example && contentType.examples.length) {
       contentType.example = contentType.examples[0]
     }
     contentType.examples = contentType.examples.map(e => '<pre>' + JSON.stringify(e, null, 2) + '</pre>')
@@ -311,15 +355,16 @@ export default {
     }
   },
   methods: {
+    marked,
     resetRequest(entry) {
       // for (var p in this.currentRequest) delete this.currentRequest[p]
 
       this.currentRequest.params = Object.assign({}, ...(entry.parameters || []).map(p => ({
         [p.name]: p.schema.enum ? p.schema.enum[0] : (p.schema.type === 'array' ? [] : null)
       })))
-      if(entry.requestBody){
+      if (entry.requestBody) {
         this.currentRequest.contentType = Object.keys(entry.requestBody.content)[0]
-        this.currentRequest.requestBody = entry.requestBody.content[this.currentRequest.contentType].example || ''
+        this.currentRequest.requestBody = entry.requestBody.content[this.currentRequest.contentType].example ||  ''
       }
     },
     select(entry) {
@@ -364,7 +409,7 @@ export default {
         params,
         headers
       }
-      if(this.selectedEntry.requestBody){
+      if (this.selectedEntry.requestBody) {
         request.headers['Content-type'] = this.currentRequest.contentType
         request.body = this.currentRequest.requestBody
       }
