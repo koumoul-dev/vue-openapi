@@ -16,7 +16,7 @@ Vue.material.registerTheme('default', {
 console.log(Vue.version)
 new Vue({
   el: '#app',
-  template: '<open-api :api="jsonApi" md-theme="\'default\'"></open-api>',
+  template: '<md-layout md-align="center"><md-layout md-flex="80"><open-api :api="jsonApi" md-theme="\'default\'"></open-api></md-layout></md-layout>',
   data: function() {
     return {
       jsonApi: jsonApi

@@ -1,126 +1,130 @@
 <template>
-<md-layout md-column>
-  <md-layout md-align="center">
-    <h2 class="md-display-1">Documentation for API {{api.servers[0].url}}</h2>
-  </md-layout>
-  <md-layout md-row>
-    <md-layout md-flex="25">
-      <md-layout>
-        <md-list class="md-dense" ref="menu">
-          <md-list-item v-for="(entries, tag) in tags" md-expand-multiple>
-            <span class="md-title">{{tag}}</span>
-            <md-list-expand>
-              <md-list>
-                <md-list-item v-for="entry in entries" @click.native="select(entry)">
-                  <md-subheader class="md-title" :class="{'md-accent':selectedEntry === entry}" v-html="entry.path.replace(/\//g,'<b>/</b>')"></md-subheader>
-                  <md-subheader :md-theme="entry.method" class="md-primary">{{entry.method}}</md-subheader>
-                </md-list-item>
-              </md-list>
-            </md-list-expand>
-          </md-list-item>
-        </md-list>
-      </md-layout>
-      <md-layout md-flex="true"></md-layout>
+<div style="position:relative;overflow-x:hidden;flex:1;">
+  <md-layout md-column>
+    <md-layout md-align="center">
+      <h2 class="md-display-1">Documentation for API {{api.servers[0].url}}</h2>
     </md-layout>
+    <md-layout md-row>
+      <md-layout md-flex="25">
+        <md-layout>
+          <md-list class="md-dense" ref="menu">
+            <md-list-item v-for="(entries, tag) in tags" md-expand-multiple>
+              <span class="md-title">{{tag}}</span>
+              <md-list-expand>
+                <md-list>
+                  <md-list-item v-for="entry in entries" @click.native="select(entry)">
+                    <md-subheader class="md-title" :class="{'md-accent':selectedEntry === entry}" v-html="entry.path.replace(/\//g,'<b>/</b>')"></md-subheader>
+                    <md-subheader :md-theme="entry.method" class="md-primary">{{entry.method}}</md-subheader>
+                  </md-list-item>
+                </md-list>
+              </md-list-expand>
+            </md-list-item>
+          </md-list>
+        </md-layout>
+        <md-layout md-flex="true"></md-layout>
+      </md-layout>
 
-    <md-layout md-flex="75" v-if="selectedEntry" md-column>
-      <h3 class="md-headline">{{selectedEntry.summary}}</h3>
-      <div>
-        <md-button class="md-raised md-primary" @click.native="openSidenav">Make request</md-button>
-      </div>
+      <md-layout md-flex="75" v-if="selectedEntry">
+        <md-layout md-column>
+        <h3 class="md-headline">{{selectedEntry.summary}}</h3>
+        <div>
+          <md-button class="md-raised md-primary" @click.native="openSidenav">Make request</md-button>
+        </div>
 
-      <!-- <div v-if="selectedEntry.description">
-        <h4>Implementation Notes</h4> {{selectedEntry.description}}
-      </div> -->
-
-
-      <h4 v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">Parameters</h4>
-      <md-table v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">
-        <md-table-header>
-          <md-table-row>
-            <md-table-head>Name</md-table-head>
-            <md-table-head>Description</md-table-head>
-            <md-table-head>Type</md-table-head>
-            <md-table-head>Values</md-table-head>
-            <md-table-head>Location</md-table-head>
-            <md-table-head>Required</md-table-head>
-          </md-table-row>
-        </md-table-header>
-
-        <md-table-body>
-          <md-table-row v-if="selectedEntry.requestBody">
-            <md-table-cell>Payload</md-table-cell>
-            <md-table-cell>Request body</md-table-cell>
-            <md-table-cell v-if="!selectedEntry.requestBody.content"></md-table-cell>
-            <md-table-cell v-if="selectedEntry.requestBody.content">
-              <md-select v-model="selectedEntry.requestBody.selectedType">
-                <md-option v-for="(value, content) in selectedEntry.requestBody.content" :value="content">{{content}}</md-option>
-              </md-select>
-            </md-table-cell>
-            <md-table-cell v-if="!selectedEntry.requestBody.content || !selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema"></md-table-cell>
-            <md-table-cell v-if="selectedEntry.requestBody.content && selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema">
-              <md-icon class="md-accent" @click.native="openSchemaDialog(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schemaHTML)" style="cursor:pointer">open_in_new</md-icon>
-            </md-table-cell>
-            <md-table-cell>body</md-table-cell>
-            <md-table-cell>
-              <md-checkbox v-model="selectedEntry.requestBody.required" disabled></md-checkbox>
-            </md-table-cell>
-          </md-table-row>
+        <!-- <div v-if="selectedEntry.description">
+          <h4>Implementation Notes</h4> {{selectedEntry.description}}
+        </div> -->
 
 
-          <md-table-row v-for="parameter in selectedEntry.parameters">
-            <md-table-cell>{{parameter.name}}</md-table-cell>
-            <md-table-cell v-html="parameter.description"></md-table-cell>
-            <md-table-cell v-if="parameter.schema.type !== 'array'">{{parameter.schema.type}}</md-table-cell>
-            <md-table-cell v-if="parameter.schema.type === 'array'">{{parameter.schema.items.type}} {{parameter.schema.type}}</md-table-cell>
-            <md-table-cell v-if="parameter.schema.type !== 'array' && parameter.schema.enum">{{parameter.schema.enum.join(', ')}}</md-table-cell>
-            <md-table-cell v-if="parameter.schema.type !== 'array' && !parameter.schema.enum"></md-table-cell>
-            <md-table-cell v-if="parameter.schema.type === 'array'">
-              <div style="overflow-y:scroll;max-height:200px;">{{(parameter.schema.items.enum || []).join(', ')}}</div>
-            </md-table-cell>
-            <md-table-cell>{{parameter.in}}</md-table-cell>
-            <md-table-cell>
-              <md-checkbox v-model="parameter.required" disabled></md-checkbox>
-            </md-table-cell>
-          </md-table-row>
-        </md-table-body>
-      </md-table>
+        <h4 v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">Parameters</h4>
+        <md-table v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">
+          <md-table-header>
+            <md-table-row>
+              <md-table-head>Name</md-table-head>
+              <md-table-head>Description</md-table-head>
+              <md-table-head>Type</md-table-head>
+              <md-table-head>Values</md-table-head>
+              <md-table-head>Location</md-table-head>
+              <md-table-head>Required</md-table-head>
+            </md-table-row>
+          </md-table-header>
+
+          <md-table-body>
+            <md-table-row v-if="selectedEntry.requestBody">
+              <md-table-cell>Payload</md-table-cell>
+              <md-table-cell>Request body</md-table-cell>
+              <md-table-cell v-if="!selectedEntry.requestBody.content"></md-table-cell>
+              <md-table-cell v-if="selectedEntry.requestBody.content">
+                <md-select v-model="selectedEntry.requestBody.selectedType">
+                  <md-option v-for="(value, content) in selectedEntry.requestBody.content" :value="content">{{content}}</md-option>
+                </md-select>
+              </md-table-cell>
+              <md-table-cell v-if="!selectedEntry.requestBody.content || !selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema"></md-table-cell>
+              <md-table-cell v-if="selectedEntry.requestBody.content && selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema">
+                <md-icon class="md-accent" @click.native="openSchemaDialog(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schemaHTML)" style="cursor:pointer">open_in_new</md-icon>
+              </md-table-cell>
+              <md-table-cell>body</md-table-cell>
+              <md-table-cell>
+                <md-checkbox v-model="selectedEntry.requestBody.required" disabled></md-checkbox>
+              </md-table-cell>
+            </md-table-row>
 
 
-      <h4>Responses</h4>
-      <md-table>
-        <md-table-header>
-          <md-table-row>
-            <md-table-head>HTTP Code</md-table-head>
-            <md-table-head>Response</md-table-head>
-            <md-table-head>Type</md-table-head>
-            <md-table-head>Schema</md-table-head>
-            <md-table-head>Examples</md-table-head>
-          </md-table-row>
-        </md-table-header>
+            <md-table-row v-for="parameter in selectedEntry.parameters">
+              <md-table-cell>{{parameter.name}}</md-table-cell>
+              <md-table-cell v-html="parameter.description"></md-table-cell>
+              <md-table-cell v-if="parameter.schema.type !== 'array'">{{parameter.schema.type}}</md-table-cell>
+              <md-table-cell v-if="parameter.schema.type === 'array'">{{parameter.schema.items.type}} {{parameter.schema.type}}</md-table-cell>
+              <md-table-cell v-if="parameter.schema.type !== 'array' && parameter.schema.enum">{{parameter.schema.enum.join(', ')}}</md-table-cell>
+              <md-table-cell v-if="parameter.schema.type !== 'array' && !parameter.schema.enum"></md-table-cell>
+              <md-table-cell v-if="parameter.schema.type === 'array'">
+                <div style="overflow-y:scroll;max-height:200px;">{{(parameter.schema.items.enum || []).join(', ')}}</div>
+              </md-table-cell>
+              <md-table-cell>{{parameter.in}}</md-table-cell>
+              <md-table-cell>
+                <md-checkbox v-model="parameter.required" disabled></md-checkbox>
+              </md-table-cell>
+            </md-table-row>
+          </md-table-body>
+        </md-table>
 
-        <md-table-body>
-          <md-table-row v-for="(response, code) in selectedEntry.responses">
-            <md-table-cell>{{code}}</md-table-cell>
-            <md-table-cell>{{response.description}}</md-table-cell>
-            <md-table-cell v-if="!response.content"></md-table-cell>
-            <md-table-cell v-if="response.content">
-              <md-select v-model="response.selectedType">
-                <md-option v-for="(value, content) in response.content" :value="content">{{content}}</md-option>
-              </md-select>
-            </md-table-cell>
-            <md-table-cell v-if="!response.content || !response.content[response.selectedType].schema"></md-table-cell>
-            <md-table-cell v-if="response.content && response.content[response.selectedType].schema">
-              <md-icon class="md-accent" @click.native="openSchemaDialog(response.content[response.selectedType].schemaHTML)" style="cursor:pointer">open_in_new</md-icon>
-            </md-table-cell>
-            <md-table-cell v-if="!response.content || !response.content[response.selectedType].examples"></md-table-cell>
-            <md-table-cell v-if="response.content && response.content[response.selectedType].examples">
-              <md-icon class="md-accent" @click.native="openExamplesDialog(response.content[response.selectedType].examples.join('<hr>'))" style="cursor:pointer">open_in_new</md-icon>
-            </md-table-cell>
-          </md-table-row>
-        </md-table-body>
-      </md-table>
-      <md-layout md-flex="true"></md-layout>
+
+        <h4>Responses</h4>
+        <md-table>
+          <md-table-header>
+            <md-table-row>
+              <md-table-head>HTTP Code</md-table-head>
+              <md-table-head>Response</md-table-head>
+              <md-table-head>Type</md-table-head>
+              <md-table-head>Schema</md-table-head>
+              <md-table-head>Examples</md-table-head>
+            </md-table-row>
+          </md-table-header>
+
+          <md-table-body>
+            <md-table-row v-for="(response, code) in selectedEntry.responses">
+              <md-table-cell>{{code}}</md-table-cell>
+              <md-table-cell>{{response.description}}</md-table-cell>
+              <md-table-cell v-if="!response.content"></md-table-cell>
+              <md-table-cell v-if="response.content">
+                <md-select v-model="response.selectedType">
+                  <md-option v-for="(value, content) in response.content" :value="content">{{content}}</md-option>
+                </md-select>
+              </md-table-cell>
+              <md-table-cell v-if="!response.content || !response.content[response.selectedType].schema"></md-table-cell>
+              <md-table-cell v-if="response.content && response.content[response.selectedType].schema">
+                <md-icon class="md-accent" @click.native="openSchemaDialog(response.content[response.selectedType].schemaHTML)" style="cursor:pointer">open_in_new</md-icon>
+              </md-table-cell>
+              <md-table-cell v-if="!response.content || !response.content[response.selectedType].examples"></md-table-cell>
+              <md-table-cell v-if="response.content && response.content[response.selectedType].examples">
+                <md-icon class="md-accent" @click.native="openExamplesDialog(response.content[response.selectedType].examples.join('<hr>'))" style="cursor:pointer">open_in_new</md-icon>
+              </md-table-cell>
+            </md-table-row>
+          </md-table-body>
+        </md-table>
+        <md-layout md-flex="true"></md-layout>
+      </md-layout>
+      </md-layout>
     </md-layout>
   </md-layout>
 
@@ -184,7 +188,7 @@
     </md-layout>
   </md-sidenav>
 
-</md-layout>
+</div>
 </template>
 
 <style>
