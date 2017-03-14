@@ -2,29 +2,24 @@
 <div style="position:relative;overflow-x:hidden;flex:1;">
   <md-layout md-column>
     <md-layout md-align="center">
-      <h2 class="md-display-1">Documentation for API {{api.servers[0].url}}</h2>
+      <h2 class="md-display-1">Endpoint {{api.servers[0].url}}</h2>
     </md-layout>
     <md-layout md-row>
-      <md-layout md-flex="25">
-        <md-layout>
-          <md-list class="md-dense" ref="menu">
-            <md-list-item v-for="(entries, tag) in tags" md-expand-multiple>
-              <span class="md-title">{{tag}}</span>
-              <md-list-expand>
-                <md-list>
-                  <md-list-item v-for="entry in entries" @click.native="select(entry)">
-                    <md-subheader class="md-title" :class="{'md-accent':selectedEntry === entry}" v-html="entry.path.replace(/\//g,'<b>/</b>')"></md-subheader>
-                    <md-subheader :md-theme="entry.method" class="md-primary">{{entry.method}}</md-subheader>
-                  </md-list-item>
-                </md-list>
-              </md-list-expand>
-            </md-list-item>
-          </md-list>
-        </md-layout>
-        <md-layout md-flex="true"></md-layout>
-      </md-layout>
+      <md-list class="md-dense" ref="menu">
+        <md-list-item v-for="(entries, tag) in tags" md-expand-multiple>
+          <span class="md-title">{{tag}}</span>
+          <md-list-expand>
+            <md-list>
+              <md-list-item v-for="entry in entries" @click.native="select(entry)">
+                <md-subheader class="md-title" :class="{'md-accent':selectedEntry === entry}" v-html="entry.path.replace(/\//g,'<b>/</b>')"></md-subheader>
+                <md-subheader :md-theme="entry.method" class="md-primary">{{entry.method}}</md-subheader>
+              </md-list-item>
+            </md-list>
+          </md-list-expand>
+        </md-list-item>
+      </md-list>
 
-      <md-layout md-flex="75" v-if="selectedEntry">
+      <md-layout md-flex-offset="5" md-flex="true" v-if="selectedEntry">
         <md-layout md-column>
         <h3 class="md-headline">{{selectedEntry.summary}}</h3>
         <div>
