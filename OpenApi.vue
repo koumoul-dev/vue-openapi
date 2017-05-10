@@ -44,6 +44,10 @@
         </md-list-item>
       </md-list>
 
+      <md-layout md-flex-offset="5" md-flex="true" v-if="!selectedEntry">
+        <p>Select an entry on the left to see detailed informations...</p>
+      </md-layout>
+
       <md-layout md-flex-offset="5" md-flex="true" v-if="selectedEntry">
         <md-layout md-column>
           <h3 class="md-headline">{{selectedEntry.summary}}</h3>
@@ -56,10 +60,10 @@
         </div> -->
 
           <h4 v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">Parameters</h4>
-          <parameters-table :selectedEntry="selectedEntry"></parameters-table>
+          <parameters-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog"></parameters-table>
 
           <h4>Responses</h4>
-          <responses-table :selectedEntry="selectedEntry"></responses-table>
+          <responses-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog"></responses-table>
           <md-layout md-flex="true"></md-layout>
         </md-layout>
       </md-layout>
@@ -74,7 +78,7 @@
       <div class="md-toolbar-container">
         <h3 class="md-title">{{selectedEntry && selectedEntry.method.toUpperCase()}} {{selectedEntry && selectedEntry.path}}</h3>
         <span style="flex:1"></span>
-        <md-button class="md-raised md-accent md-icon-button" @click.native="closeSidenav">
+        <md-button class="md-icon-button" @click.native="closeSidenav">
           <md-icon>close</md-icon>
         </md-button>
       </div>

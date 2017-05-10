@@ -55,7 +55,7 @@
 import marked from 'marked'
 
 export default {
-  props: ['selectedEntry'],
+  props: [ 'selectedEntry', 'openSchemaDialog', 'openExamplesDialog' ],
   methods: { marked }
 }
 </script>
