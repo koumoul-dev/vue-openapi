@@ -92,7 +92,7 @@
 
       <h2>Response</h2>
       <pre>
-        {{currentResponse}}
+{{currentResponse}}
       </pre>
     </md-layout>
   </md-sidenav>
@@ -185,8 +185,10 @@ export default {
     },
     request() {
       this.currentResponse = ''
-      request.fetch(this.currentRequest, this.selectedEntry, this.api).then(body => {
-        this.currentResponse = JSON.stringify(body, null, 2)
+      request.fetch(this.currentRequest, this.selectedEntry, this.api).then(res => {
+        this.currentResponse = JSON.stringify(res.body, null, 2)
+      }, res => {
+        this.currentResponse = JSON.stringify(res.body, null, 2)
       })
     }
   }

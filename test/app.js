@@ -13,7 +13,6 @@ Vue.material.registerTheme('default', {
   accent: 'red'
 })
 
-console.log(Vue.version)
 new Vue({
   el: '#app',
   template: '<open-api :api="jsonApi" md-theme="\'default\'"></open-api>',

@@ -1,3 +1,5 @@
+import Vue from 'vue'
+
 exports.reset = (request, entry) => {
   request.params = Object.assign({}, ...(entry.parameters || []).map(p => ({
     [p.name]: p.schema.enum ? p.schema.enum[0] : (p.schema.type === 'array' ? [] : null)
@@ -33,5 +35,5 @@ exports.fetch = (request, entry, api) => {
     httpRequest.headers['Content-type'] = request.contentType
     httpRequest.body = request.requestBody
   }
-  $http(httpRequest).then(response => response.body)
+  return Vue.http(httpRequest)
 }
