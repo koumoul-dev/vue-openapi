@@ -29,27 +29,28 @@
       </md-layout>
     </md-layout>
 
-    <md-layout md-row>
+    <md-layout md-row style="flex-wrap: nowrap;">
       <md-list class="md-dense" ref="menu">
-        <md-list-item v-for="(entries, tag) in tags" md-expand-multiple>
-          <span class="md-title">{{tag}}</span>
-          <md-list-expand>
-            <md-list>
-              <md-list-item v-for="entry in entries" @click.native="select(entry)">
-                <md-subheader class="md-title" :class="{'md-accent':selectedEntry === entry}" v-html="entry.path.replace(/\//g,'<b>/</b>')"></md-subheader>
-                <md-subheader :md-theme="entry.method" class="md-primary">{{entry.method}}</md-subheader>
-              </md-list-item>
-            </md-list>
-          </md-list-expand>
-        </md-list-item>
+          <md-list-item v-for="(entries, tag) in tags" md-expand-multiple>
+            <span class="md-title">{{tag}}</span>
+            <md-list-expand>
+              <md-list>
+                <md-list-item v-for="entry in entries" @click.native="select(entry)">
+                  <md-subheader class="md-title" :class="{'md-accent':selectedEntry === entry}" v-html="entry.path.replace(/\//g,'<b>/</b>')"></md-subheader>
+                  <md-subheader :md-theme="entry.method" class="md-primary">{{entry.method}}</md-subheader>
+                </md-list-item>
+              </md-list>
+            </md-list-expand>
+          </md-list-item>
       </md-list>
+
 
       <md-layout md-flex-offset="5" md-flex="true" v-if="!selectedEntry">
         <p>Select an entry on the left to see detailed information...</p>
       </md-layout>
 
-      <md-layout md-flex-offset="5" md-flex="true" v-if="selectedEntry">
-        <md-layout md-column>
+      <md-layout md-column md-flex-offset="5" md-flex="true" v-if="selectedEntry">
+
           <h3 class="md-headline">{{selectedEntry.summary}}</h3>
           <div>
             <md-button class="md-raised md-primary" @click.native="openSidenav">Make request</md-button>
@@ -64,8 +65,7 @@
 
           <h4>Responses</h4>
           <responses-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog"></responses-table>
-          <md-layout md-flex="true"></md-layout>
-        </md-layout>
+
       </md-layout>
     </md-layout>
   </md-layout>
@@ -104,7 +104,7 @@
 .openapi {
    position:relative;
    overflow-x:hidden;
-   flex:1;
+   height:100%;
 }
 
 .openapi .md-right .md-sidenav-content {
