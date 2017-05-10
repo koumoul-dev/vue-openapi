@@ -1,5 +1,5 @@
 <template>
-<div style="position:relative;overflow-x:hidden;flex:1;">
+<div class="openapi">
   <md-layout md-column>
     <md-layout md-row md-flex="90" md-align="center">
       <md-layout md-column md-flex="65">
@@ -81,8 +81,8 @@
                   </md-select>
                 </md-table-cell>
                 <md-table-cell v-if="!selectedEntry.requestBody.content || !selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema"></md-table-cell>
-                <md-table-cell v-if="selectedEntry.requestBody.content && selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema">
-                  <md-icon class="md-accent" @click.native="openSchemaDialog(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schemaHTML)" style="cursor:pointer">open_in_new</md-icon>
+                <md-table-cell v-if="selectedEntry.requestBody.content && selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema" style="align-items: left;">
+                  <md-icon class="md-accent" @click.native="openSchemaDialog(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schemaHTML)" style="cursor:pointer" title="View schema">open_in_new</md-icon>
                 </md-table-cell>
                 <md-table-cell>body</md-table-cell>
                 <md-table-cell>
@@ -95,7 +95,7 @@
                 <md-table-cell>{{parameter.name}}</md-table-cell>
                 <md-table-cell v-html="marked(parameter.description)"></md-table-cell>
                 <md-table-cell v-if="parameter.schema.type !== 'array'">{{parameter.schema.type}}</md-table-cell>
-                <md-table-cell v-if="parameter.schema.type === 'array'">{{parameter.schema.items.type}} {{parameter.schema.type}}</md-table-cell>
+                <md-table-cell v-if="parameter.schema.type === 'array'">{{parameter.schema.items.type}} array</md-table-cell>
                 <md-table-cell v-if="parameter.schema.type !== 'array' && parameter.schema.enum">{{parameter.schema.enum.join(', ')}}</md-table-cell>
                 <md-table-cell v-if="parameter.schema.type !== 'array' && !parameter.schema.enum"></md-table-cell>
                 <md-table-cell v-if="parameter.schema.type === 'array'">
@@ -191,8 +191,7 @@
           </md-input-container>
 
           <md-chips v-model="currentRequest.params[parameter.name]" :md-input-placeholder="parameter.name" :md-input-type="parameter.schema.items.type" v-if="parameter.schema.type === 'array' && !parameter.schema.items.enum">
-            <template scope="chip">{{ chip.value }}
-</template>
+            <template scope="chip">{{ chip.value }}</template>
           </md-chips>
 
           <md-checkbox v-if="parameter.schema.type === 'boolean'" v-model="currentRequest.params[parameter.name]">{{parameter.name}}</md-checkbox>
@@ -213,13 +212,24 @@
 </div>
 </template>
 
-<style>
-.md-right .md-sidenav-content {
+<style lang="css">
+
+.openapi {
+   position:relative;
+   overflow-x:hidden;
+   flex:1;
+}
+
+.openapi .md-right .md-sidenav-content {
   width: 500px;
 }
 
-#request-form {
+.openapi #request-form {
   padding: 16px;
+}
+
+.openapi .md-table .md-table-cell.md-has-action .md-table-cell-container {
+  display: inherit;
 }
 </style>
 
