@@ -45,7 +45,7 @@
       </md-list>
 
       <md-layout md-flex-offset="5" md-flex="true" v-if="!selectedEntry">
-        <p>Select an entry on the left to see detailed informations...</p>
+        <p>Select an entry on the left to see detailed information...</p>
       </md-layout>
 
       <md-layout md-flex-offset="5" md-flex="true" v-if="selectedEntry">
