@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueMaterial from 'vue-material'
-import OpenApi from '../OpenApi.vue'
+import OpenApi from '../src/OpenApi.vue'
 import 'vue-material/dist/vue-material.css'
 import VueResource from 'vue-resource'
 

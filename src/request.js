@@ -6,18 +6,34 @@ exports.reset = (request, entry) => {
   })))
   if (entry.requestBody) {
     request.contentType = Object.keys(entry.requestBody.content)[0]
-    request.requestBody = entry.requestBody.content[request.contentType].example || ''
+    let requestBody = ''
+    const contentType = entry.requestBody.content[request.contentType]
+    if (contentType.schema && contentType.schema.examples) {
+      requestBody = contentType.schema.examples[Object.keys(contentType.schema.examples)[0]]
+    }
+    if (contentType.schema.example && contentType.schema.example) {
+      requestBody = contentType.schema.example
+    }
+    if (contentType.examples) {
+      requestBody = contentType.examples[Object.keys(contentType.examples)[0]]
+    }
+    if (contentType.example) {
+      requestBody = contentType.example
+    }
+    request.body = typeof requestBody === 'string' ? requestBody : JSON.stringify(requestBody, null, 2)
   }
 }
 
 exports.fetch = (request, entry, api) => {
-  let params = Object.assign({}, ...(entry.parameters || []).filter(p => p.in === 'query' && (p.schema.type === 'array' ? request.params[p.name].length : request.params[p.name]))
+  let params = Object.assign({}, ...(entry.parameters || [])
+    .filter(p => p.in === 'query' && (p.schema.type === 'array' ? request.params[p.name].length : request.params[p.name]))
     .map(p => ({
       // TODO : join character for array should depend of p.style
       [p.name]: p.schema.type === 'array' ? request.params[p.name].join(',') : request.params[p.name]
     }))
   )
-  let headers = Object.assign({}, ...(entry.parameters || []).filter(p => p.in === 'header' && (p.schema.type === 'array' ? request.params[p.name].length : request.params[p.name]))
+  let headers = Object.assign({}, ...(entry.parameters || [])
+    .filter(p => p.in === 'header' && (p.schema.type === 'array' ? request.params[p.name].length : request.params[p.name]))
     .map(p => ({
       // TODO : join character for array should depend of p.style
       [p.name]: p.schema.type === 'array' ? request.params[p.name].join(',') : request.params[p.name]
@@ -33,7 +49,7 @@ exports.fetch = (request, entry, api) => {
   }
   if (entry.requestBody) {
     httpRequest.headers['Content-type'] = request.contentType
-    httpRequest.body = request.requestBody
+    httpRequest.body = request.body
   }
   return Vue.http(httpRequest)
 }

@@ -1,8 +1,8 @@
 <template lang="html">
   <form novalidate @submit.stop.prevent="submit" v-if="selectedEntry" id="request-form">
     <md-input-container v-if="selectedEntry.requestBody">
-      <label>Payload</label>
-      <md-textarea v-model="currentRequest.requestBody"></md-textarea>
+      <label for="payload">Payload ({{selectedEntry.requestBody.selectedType}})</label>
+      <md-textarea name="payload" v-model="currentRequest.body"></md-textarea>
     </md-input-container>
 
     <div v-for="parameter in selectedEntry.parameters">

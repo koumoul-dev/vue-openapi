@@ -10,7 +10,7 @@
         <md-table-head>Required</md-table-head>
       </md-table-row>
     </md-table-header>
-
+    
     <md-table-body>
       <md-table-row v-if="selectedEntry.requestBody">
         <md-table-cell>Payload</md-table-cell>
@@ -18,7 +18,7 @@
         <md-table-cell v-if="!selectedEntry.requestBody.content"></md-table-cell>
         <md-table-cell v-if="selectedEntry.requestBody.content">
           <md-select v-model="selectedEntry.requestBody.selectedType">
-            <md-option v-for="(value, content) in selectedEntry.requestBody.content" :value="content">{{content}}</md-option>
+            <md-option v-for="contentType in Object.keys(selectedEntry.requestBody.content)" :value="contentType">{{contentType}}</md-option>
           </md-select>
         </md-table-cell>
         <md-table-cell v-if="!selectedEntry.requestBody.content || !selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema"></md-table-cell>

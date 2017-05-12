@@ -908,13 +908,14 @@
             "description": "Pet object that needs to be added to the store",
             "schema": {
               "$ref": "#/components/schemas/Pet"
+            },
+            "example": {
+              "name": "rex",
+              "photoUrls": []
             }
           },
           "application/xml": {
-            "description": "Pet object that needs to be added to the store",
-            "schema": {
-              "$ref": "#/components/schemas/Pet"
-            }
+            "description": "Pet object that needs to be added to the store"
           }
         }
       }

@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import _get from 'lodash.get'
 
 const defaultStyle = {
@@ -61,7 +62,7 @@ exports.get = api => {
           entry.requestBody = _get(api, entry.requestBody.$ref.split('#/').pop().replace(/\//g, '.'))
         }
         if (entry.requestBody.content) {
-          entry.requestBody.selectedType = Object.keys(entry.requestBody.content)[0]
+          Vue.set(entry.requestBody, 'selectedType', Object.keys(entry.requestBody.content)[0])
           entry.requestBody.required = true
           Object.values(entry.requestBody.content).forEach(contentType => processContent(contentType, api))
         }
@@ -71,7 +72,7 @@ exports.get = api => {
       Object.values(entry.responses).forEach(response => {
         if (response.content) {
           // preselecting responses mime-type
-          response.selectedType = Object.keys(response.content)[0]
+          Vue.set(response, 'selectedType', Object.keys(response.content)[0])
           Object.values(response.content).forEach(contentType => processContent(contentType, api))
         }
       })
