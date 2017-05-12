@@ -22,11 +22,11 @@
         </md-table-cell>
         <md-table-cell v-if="!response.content || !response.content[response.selectedType].schema"></md-table-cell>
         <md-table-cell v-if="response.content && response.content[response.selectedType].schema">
-          <md-icon class="md-accent" @click.native="openSchemaDialog(response.content[response.selectedType].schemaHTML)" style="cursor:pointer">open_in_new</md-icon>
+          <md-icon class="md-accent" @click.native="openSchemaDialog(response.content[response.selectedType].schema)" style="cursor:pointer">open_in_new</md-icon>
         </md-table-cell>
         <md-table-cell v-if="!response.content || !response.content[response.selectedType].examples"></md-table-cell>
         <md-table-cell v-if="response.content && response.content[response.selectedType].examples">
-          <md-icon class="md-accent" @click.native="openExamplesDialog(response.content[response.selectedType].examples.join('<hr>'))" style="cursor:pointer">open_in_new</md-icon>
+          <md-icon class="md-accent" @click.native="openExamplesDialog(response.content[response.selectedType].examples)" style="cursor:pointer">open_in_new</md-icon>
         </md-table-cell>
       </md-table-row>
     </md-table-body>

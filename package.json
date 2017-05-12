@@ -26,7 +26,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "lodash.get": "^4.4.2",
+    "json-formatter-js": "^2.2.0",
+    "json-schema-deref-local": "^0.2.1",
+    "json-schema-view-js": "^1.0.0",
     "marked": "^0.3.6",
     "vue-material": "^0.7.1",
     "vue-resource": "^1.0.3"

@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import _get from 'lodash.get'
+import deref from 'json-schema-deref-local'
 
 const defaultStyle = {
   query: 'form',
@@ -9,34 +9,24 @@ const defaultStyle = {
 }
 
 function processContent(contentType, api) {
-  // Spec allow an item or an array, we always fall back on an array of examples
-  if (contentType.example) {
-    contentType.examples = contentType.examples || []
-    contentType.examples.push(contentType.example)
-  }
-  if (contentType.examples) {
-    if (!contentType.example && contentType.examples.length) {
-      contentType.example = contentType.examples[0]
-    }
-    contentType.examples = contentType.examples.map(e => '<pre>' + JSON.stringify(e, null, 2) + '</pre>')
-  }
+  // Spec allow examples as an item or an array. In the API or in the schema
+  // we always fall back on an array
   if (contentType.schema) {
-    if (contentType.schema.$ref) {
-      contentType.schema = _get(api, contentType.schema.$ref.split('#/').pop().replace(/\//g, '.'))
-    } else if (contentType.schema.items && contentType.schema.items.$ref) {
-      contentType.schema.items = _get(api, contentType.schema.items.$ref.split('#/').pop().replace(/\//g, '.'))
-    }
-    if (typeof contentType.schema !== 'string') {
-      contentType.schemaHTML = '<pre>' + JSON.stringify(contentType.schema, null, 2) + '</pre>'
-    }
+    contentType.examples = contentType.examples || contentType.schema.examples
+    contentType.example = contentType.example || contentType.schema.example
+  }
+
+  if (contentType.example) {
+    contentType.examples = [contentType.example]
   }
 }
 
 exports.get = api => {
+  const derefAPI = deref(api)
   var tags = {}
-  Object.keys(api.paths).forEach(function(path) {
-    Object.keys(api.paths[path]).forEach(function(method) {
-      let entry = api.paths[path][method]
+  Object.keys(derefAPI.paths).forEach(function(path) {
+    Object.keys(derefAPI.paths[path]).forEach(function(method) {
+      let entry = derefAPI.paths[path][method]
       entry.method = method
       entry.path = path
         // Filling tags entries
@@ -58,9 +48,6 @@ exports.get = api => {
         })
       }
       if (entry.requestBody) {
-        if (entry.requestBody.$ref) {
-          entry.requestBody = _get(api, entry.requestBody.$ref.split('#/').pop().replace(/\//g, '.'))
-        }
         if (entry.requestBody.content) {
           Vue.set(entry.requestBody, 'selectedType', Object.keys(entry.requestBody.content)[0])
           entry.requestBody.required = true

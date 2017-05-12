@@ -70,8 +70,26 @@
     </md-layout>
   </md-layout>
 
-  <md-dialog-alert :md-content-html="currentSchema" md-title="Schema" ref="schemaDialog"></md-dialog-alert>
-  <md-dialog-alert :md-content-html="currentExamples" md-title="Examples" ref="examplesDialog"></md-dialog-alert>
+  <md-dialog ref="schemaDialog" class="schema-dialog">
+    <md-dialog-title>Schema</md-dialog-title>
+
+    <md-dialog-content>
+      <md-tabs>
+        <md-tab id="tree" md-label="Tree">
+          <schema-view :schema="currentSchema"></schema-view>
+        </md-tab>
+        <md-tab id="raw" md-label="Raw">
+<pre>{{ JSON.stringify(currentSchema, null, 2)}}</pre>
+        </md-tab>
+      </md-tabs>
+    </md-dialog-content>
+
+    <md-dialog-actions>
+      <md-button @click.native="$refs.schemaDialog.close()">ok</md-button>
+    </md-dialog-actions>
+  </md-dialog>
+
+  <md-dialog-alert :md-content-html="currentExamples.map(example => `<pre>${JSON.stringify(example, null, 2)}</pre>`).join('<br>') + ' '" md-title="Examples" ref="examplesDialog"></md-dialog-alert>
 
   <md-sidenav class="md-right" ref="sidenav">
     <md-toolbar>
@@ -118,6 +136,10 @@
 .openapi .md-table .md-table-cell.md-has-action .md-table-cell-container {
   display: inherit;
 }
+
+.schema-dialog .md-dialog {
+  min-width: 800px;
+}
 </style>
 
 <script>
@@ -125,18 +147,22 @@ import marked from 'marked'
 import RequestForm from './RequestForm.vue'
 import ResponsesTable from './ResponsesTable.vue'
 import ParametersTable from './ParametersTable.vue'
+import SchemaView from './SchemaView.vue'
 import tags from './tags.js'
 import request from './request.js'
 
 export default {
   name: 'open-api',
-  components: { RequestForm, ResponsesTable, ParametersTable },
+  components: { RequestForm, ResponsesTable, ParametersTable, SchemaView },
   props: ['api'],
   data: () => ({
     selectedEntry: null,
     currentSchema: ' ',
-    currentExamples: ' ',
-    currentRequest: {},
+    currentExamples: [],
+    currentRequest: {
+      contentType: '',
+      body: ''
+    },
     currentResponse: ''
   }),
   mounted: function() {

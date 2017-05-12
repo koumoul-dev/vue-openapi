@@ -5,22 +5,9 @@ exports.reset = (request, entry) => {
     [p.name]: p.schema.enum ? p.schema.enum[0] : (p.schema.type === 'array' ? [] : null)
   })))
   if (entry.requestBody) {
-    request.contentType = Object.keys(entry.requestBody.content)[0]
-    let requestBody = ''
-    const contentType = entry.requestBody.content[request.contentType]
-    if (contentType.schema && contentType.schema.examples) {
-      requestBody = contentType.schema.examples[Object.keys(contentType.schema.examples)[0]]
-    }
-    if (contentType.schema.example && contentType.schema.example) {
-      requestBody = contentType.schema.example
-    }
-    if (contentType.examples) {
-      requestBody = contentType.examples[Object.keys(contentType.examples)[0]]
-    }
-    if (contentType.example) {
-      requestBody = contentType.example
-    }
-    request.body = typeof requestBody === 'string' ? requestBody : JSON.stringify(requestBody, null, 2)
+    request.contentType = entry.requestBody.selectedType
+    const example = entry.requestBody.content[request.contentType].example
+    request.body = typeof example === 'string' ? example : JSON.stringify(example, null, 2)
   }
 }
 

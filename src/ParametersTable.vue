@@ -10,7 +10,7 @@
         <md-table-head>Required</md-table-head>
       </md-table-row>
     </md-table-header>
-    
+
     <md-table-body>
       <md-table-row v-if="selectedEntry.requestBody">
         <md-table-cell>Payload</md-table-cell>
@@ -23,7 +23,7 @@
         </md-table-cell>
         <md-table-cell v-if="!selectedEntry.requestBody.content || !selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema"></md-table-cell>
         <md-table-cell v-if="selectedEntry.requestBody.content && selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema" style="align-items: left;">
-          <md-icon class="md-accent" @click.native="openSchemaDialog(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schemaHTML)" style="cursor:pointer" title="View schema">open_in_new</md-icon>
+          <md-icon class="md-accent" @click.native="openSchemaDialog(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema)" style="cursor:pointer" title="View schema">open_in_new</md-icon>
         </md-table-cell>
         <md-table-cell>body</md-table-cell>
         <md-table-cell>
