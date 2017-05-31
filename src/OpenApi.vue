@@ -9,18 +9,18 @@
       <md-layout md-flex="5"></md-layout>
       <md-layout md-column md-flex="20">
         <md-layout md-flex="true"></md-layout>
-        <md-card>
+        <md-card v-if="api.info">
           <md-list>
-            <md-list-item>
-              <md-icon>home</md-icon> <span><a :href="api.info.contact.url">{{api.info.contact.name}}</a></span>
+            <md-list-item v-if="api.info.contact && api.info.contact.url">
+              <md-icon>home</md-icon> <span><a :href="api.info.contact.url">{{api.info.contact.name || api.info.contact.url}}</a></span>
             </md-list-item>
-            <md-list-item>
+            <md-list-item v-if="api.info.contact && api.info.contact.email">
               <md-icon>email</md-icon> <span><a :href="'mailto:'+api.info.contact.email">{{api.info.contact.email}}</a></span>
             </md-list-item>
-            <md-list-item>
+            <md-list-item v-if="api.info.version">
               <md-icon>label</md-icon> <span>{{api.info.version}}</span>
             </md-list-item>
-            <md-list-item>
+            <md-list-item v-if="api.info.termsOfService">
               <md-icon>description</md-icon> <span><a :href="api.info.termsOfService">Terms of Service</a></span>
             </md-list-item>
           </md-list>
