@@ -227,6 +227,20 @@ function reset(request, entry) {
   request.params = Object.assign({}, ...(entry.parameters || []).map(p => ({
     [p.name]: p.schema.enum ? p.schema.enum[0] : (p.schema.type === 'array' ? [] : null)
   })))
+
+  request.params = {};
+  (entry.parameters || []).forEach(p => {
+    request.params[p.name] = null
+    if (p.schema && p.schema.enum) {
+      request.params[p.name] = p.schema.enum[0]
+    }
+    if (p.schema && p.schema.type === 'array') {
+      request.params[p.name] = []
+    }
+    if (p.example) {
+      request.params[p.name] = p.example
+    }
+  })
   if (entry.requestBody) {
     request.contentType = entry.requestBody.selectedType
     const example = entry.requestBody.content[request.contentType].example
@@ -325,6 +339,7 @@ function getTag(api) {
        }
 
        // Some preprocessing with responses
+       entry.responses = entry.responses || {}
        Object.values(entry.responses).forEach(response => {
          if (response.content) {
            // preselecting responses mime-type

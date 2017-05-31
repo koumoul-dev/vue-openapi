@@ -267,7 +267,8 @@
           "required": true,
           "schema": {
             "type": "string"
-          }
+          },
+          "example": "rex"
         }],
         "responses": {
           "405": {

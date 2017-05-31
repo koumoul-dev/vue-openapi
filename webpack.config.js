@@ -40,7 +40,7 @@ module.exports = {
       secure: false
     }]
   },
-  devtool: '#eval-source-map'
+  devtool: '#eval'
 }
 
 if (process.env.NODE_ENV === 'production') {
