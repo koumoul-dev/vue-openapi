@@ -143,13 +143,12 @@
 </style>
 
 <script>
+import Vue from 'vue'
 import marked from 'marked'
 import RequestForm from './RequestForm.vue'
 import ResponsesTable from './ResponsesTable.vue'
 import ParametersTable from './ParametersTable.vue'
 import SchemaView from './SchemaView.vue'
-import tags from './tags.js'
-import request from './request.js'
 
 export default {
   name: 'open-api',
@@ -184,13 +183,13 @@ export default {
   },
   computed: {
     tags: function() {
-      return tags.get(this.api)
+      return getTag(this.api)
     }
   },
   methods: {
     marked,
     select(entry) {
-      request.reset(this.currentRequest, entry)
+      reset(this.currentRequest, entry)
       this.selectedEntry = entry
     },
     openSchemaDialog(schema) {
@@ -202,7 +201,7 @@ export default {
       this.$refs.examplesDialog.open()
     },
     openSidenav() {
-      request.reset(this.currentRequest, this.selectedEntry)
+      reset(this.currentRequest, this.selectedEntry)
       this.currentResponse = ''
       this.$refs.sidenav.open()
     },
@@ -211,7 +210,7 @@ export default {
     },
     request() {
       this.currentResponse = ''
-      request.fetch(this.currentRequest, this.selectedEntry, this.api).then(res => {
+      fetch(this.currentRequest, this.selectedEntry, this.api).then(res => {
         this.currentResponse = JSON.stringify(res.body, null, 2)
       }, res => {
         this.currentResponse = JSON.stringify(res.body, null, 2)
@@ -219,4 +218,123 @@ export default {
     }
   }
 }
+
+/*
+ * HTTP requests utils
+ */
+
+function reset(request, entry) {
+  request.params = Object.assign({}, ...(entry.parameters || []).map(p => ({
+    [p.name]: p.schema.enum ? p.schema.enum[0] : (p.schema.type === 'array' ? [] : null)
+  })))
+  if (entry.requestBody) {
+    request.contentType = entry.requestBody.selectedType
+    const example = entry.requestBody.content[request.contentType].example
+    request.body = typeof example === 'string' ? example : JSON.stringify(example, null, 2)
+  }
+}
+
+function fetch(request, entry, api) {
+  let params = Object.assign({}, ...(entry.parameters || [])
+    .filter(p => p.in === 'query' && (p.schema.type === 'array' ? request.params[p.name].length : request.params[p.name]))
+    .map(p => ({
+      // TODO : join character for array should depend of p.style
+      [p.name]: p.schema.type === 'array' ? request.params[p.name].join(',') : request.params[p.name]
+    }))
+  )
+  let headers = Object.assign({}, ...(entry.parameters || [])
+    .filter(p => p.in === 'header' && (p.schema.type === 'array' ? request.params[p.name].length : request.params[p.name]))
+    .map(p => ({
+      // TODO : join character for array should depend of p.style
+      [p.name]: p.schema.type === 'array' ? request.params[p.name].join(',') : request.params[p.name]
+    }))
+  )
+  const httpRequest = {
+    method: entry.method,
+    url: api.servers[0].url + entry.path.replace(/{(\w*)}/g, (m, key) => {
+      return request.params[key]
+    }),
+    params,
+    headers
+  }
+  if (entry.requestBody) {
+    httpRequest.headers['Content-type'] = request.contentType
+    httpRequest.body = request.body
+  }
+  return Vue.http(httpRequest)
+}
+
+/*
+ * Tags management utils
+ */
+
+ import deref from 'json-schema-deref-local'
+
+ const defaultStyle = {
+   query: 'form',
+   path: 'simple',
+   header: 'simple',
+   cookie: 'form'
+ }
+
+ function processContent(contentType, api) {
+   // Spec allow examples as an item or an array. In the API or in the schema
+   // we always fall back on an array
+   if (contentType.schema) {
+     contentType.examples = contentType.examples || contentType.schema.examples
+     contentType.example = contentType.example || contentType.schema.example
+   }
+
+   if (contentType.example) {
+     contentType.examples = [contentType.example]
+   }
+ }
+
+function getTag(api) {
+   const derefAPI = deref(api)
+   var tags = {}
+   Object.keys(derefAPI.paths).forEach(function(path) {
+     Object.keys(derefAPI.paths[path]).forEach(function(method) {
+       let entry = derefAPI.paths[path][method]
+       entry.method = method
+       entry.path = path
+         // Filling tags entries
+       entry.tags = entry.tags || []
+       if (!entry.tags.length) {
+         entry.tags.push('No category')
+       }
+       entry.tags.forEach(function(tag) {
+         tags[tag] = tags[tag] || []
+         tags[tag].push(entry)
+       })
+       if (entry.parameters) {
+         entry.parameters.forEach(p => {
+           p.style = p.style || defaultStyle[p.in]
+           p.explode = p.explode || (p.style === 'form')
+           p.schema = p.schema || {
+             type: 'string'
+           }
+         })
+       }
+       if (entry.requestBody) {
+         if (entry.requestBody.content) {
+           Vue.set(entry.requestBody, 'selectedType', Object.keys(entry.requestBody.content)[0])
+           entry.requestBody.required = true
+           Object.values(entry.requestBody.content).forEach(contentType => processContent(contentType, api))
+         }
+       }
+
+       // Some preprocessing with responses
+       Object.values(entry.responses).forEach(response => {
+         if (response.content) {
+           // preselecting responses mime-type
+           Vue.set(response, 'selectedType', Object.keys(response.content)[0])
+           Object.values(response.content).forEach(contentType => processContent(contentType, api))
+         }
+       })
+     })
+   })
+   return tags
+ }
+
 </script>
