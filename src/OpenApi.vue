@@ -35,7 +35,7 @@
           <span class="md-title">{{tag}}</span>
           <md-list-expand>
             <md-list>
-              <md-list-item v-for="(entry, i) in entries" :key="i" @click.native="select(entry)">
+              <md-list-item v-for="(entry, i) in entries" :key="i" @click.native="select(entry)" style="cursor:pointer">
                 <md-subheader class="md-title" :class="{'md-accent':selectedEntry === entry}" v-html="entry.path.replace(/\//g,'<b>/</b>')"></md-subheader>
                 <md-subheader :md-theme="entry.method" class="md-primary">{{entry.method}}</md-subheader>
               </md-list-item>
@@ -50,22 +50,32 @@
       </md-layout>
 
       <md-layout md-column md-flex-offset="5" md-flex="true" v-if="selectedEntry">
+        <h2 class="md-title">{{selectedEntry.summary}}</h2>
+        <h3 class="md-subheading">{{selectedEntry.method.toUpperCase()}} {{api.servers[0].url + selectedEntry.path}}</h3>
+        <md-tabs md-right class="md-transparent" style="margin-top:-54px">
+          <md-tab md-label="Documentation">
+            <h4 v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">Parameters</h4>
+            <parameters-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog"></parameters-table>
+            <h4>Responses</h4>
+            <responses-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog"></responses-table>
+          </md-tab>
+          <md-tab md-label="Make request">
+            <md-layout md-row>
+              <md-layout md-column md-flex="40">
+                <h2>Request</h2>
+                <request-form :selectedEntry="selectedEntry" :currentRequest="currentRequest"></request-form>
+                <div>
+                  <md-button class="md-raised md-accent" @click.native="request">Execute</md-button>
+                </div>
+              </md-layout>
 
-        <h3 class="md-headline">{{selectedEntry.summary}}</h3>
-        <div>
-          <md-button class="md-raised md-primary" @click.native="openSidenav">Make request</md-button>
-        </div>
-
-        <!-- <div v-if="selectedEntry.description">
-          <h4>Implementation Notes</h4> {{selectedEntry.description}}
-        </div> -->
-
-        <h4 v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">Parameters</h4>
-        <parameters-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog"></parameters-table>
-
-        <h4>Responses</h4>
-        <responses-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog"></responses-table>
-
+              <md-layout md-column md-flex="60">
+                <h2>Response</h2>
+                <pre>{{currentResponse}}</pre>
+              </md-layout>
+            </md-layout>
+          </md-tab>
+        </md-tabs>
       </md-layout>
     </md-layout>
   </md-layout>
@@ -91,30 +101,6 @@
 
   <md-dialog-alert :md-content-html="currentExamples.map(example => `<pre>${JSON.stringify(example, null, 2)}</pre>`).join('<br>') + ' '" md-title="Examples" ref="examplesDialog"></md-dialog-alert>
 
-  <md-sidenav class="md-right" ref="sidenav">
-    <md-toolbar>
-      <div class="md-toolbar-container">
-        <h3 class="md-title">{{selectedEntry && selectedEntry.method.toUpperCase()}} {{selectedEntry && selectedEntry.path}}</h3>
-        <span style="flex:1"></span>
-        <md-button class="md-icon-button" @click.native="closeSidenav">
-          <md-icon>close</md-icon>
-        </md-button>
-      </div>
-    </md-toolbar>
-    <md-layout md-gutter md-column style="padding: 16px;">
-      <h2>Request</h2>
-      <request-form :selectedEntry="selectedEntry" :currentRequest="currentRequest"></request-form>
-      <md-layout>
-        <md-button class="md-raised md-accent" @click.native="request">Request</md-button>
-      </md-layout>
-
-      <h2>Response</h2>
-      <pre>
-{{currentResponse}}
-      </pre>
-    </md-layout>
-  </md-sidenav>
-
 </div>
 </template>
 
@@ -123,10 +109,6 @@
    position:relative;
    overflow-x:hidden;
    height:100%;
-}
-
-.openapi .md-right .md-sidenav-content {
-  width: 500px;
 }
 
 .openapi #request-form {
@@ -199,7 +181,7 @@ export default {
     reset(entry) {
       this.currentRequest.params = {};
       (entry.parameters || []).forEach(p => {
-        this.currentRequest.params[p.name] = (p.in === 'query' && this.queryParams && this.queryParams[p.name]) || (p.in === 'header' && this.headers && this.headers[p.name])
+        this.currentRequest.params[p.name] = (p.in === 'query' && this.queryParams && this.queryParams[p.name]) || (p.in === 'header' && this.headers && this.headers[p.name]) || null
         if (!this.currentRequest.params[p.name]) {
           if (p.schema && p.schema.enum) {
             this.currentRequest.params[p.name] = p.schema.enum[0]
@@ -229,14 +211,6 @@ export default {
     openExamplesDialog(examples) {
       this.currentExamples = examples
       this.$refs.examplesDialog.open()
-    },
-    openSidenav() {
-      this.reset(this.selectedEntry)
-      this.currentResponse = ''
-      this.$refs.sidenav.open()
-    },
-    closeSidenav() {
-      this.$refs.sidenav.close()
     },
     request() {
       this.currentResponse = ''
