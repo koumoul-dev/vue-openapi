@@ -149,6 +149,23 @@ import RequestForm from './RequestForm.vue'
 import ResponsesTable from './ResponsesTable.vue'
 import ParametersTable from './ParametersTable.vue'
 import SchemaView from './SchemaView.vue'
+import VueMaterial from 'vue-material'
+
+Vue.use(VueMaterial)
+Vue.material.registerTheme({
+  get: {
+    primary: 'blue'
+  },
+  post: {
+    primary: 'green'
+  },
+  put: {
+    primary: 'orange'
+  },
+  delete: {
+    primary: 'red'
+  }
+})
 
 export default {
   name: 'open-api',
@@ -171,20 +188,6 @@ export default {
   }),
   mounted: function() {
     this.$refs.menu.$children[0].toggleExpandList()
-    this.$material.registerTheme({
-      get: {
-        primary: 'blue'
-      },
-      post: {
-        primary: 'green'
-      },
-      put: {
-        primary: 'orange'
-      },
-      delete: {
-        primary: 'red'
-      }
-    })
   },
   computed: {
     tags: function() {
