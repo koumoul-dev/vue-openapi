@@ -31,17 +31,17 @@
 
     <md-layout md-row style="flex-wrap: nowrap;">
       <md-list class="md-dense" ref="menu">
-          <md-list-item v-for="(entries, tag) in tags" :key="tag" md-expand-multiple>
-            <span class="md-title">{{tag}}</span>
-            <md-list-expand>
-              <md-list>
-                <md-list-item v-for="(entry, i) in entries" :key="i" @click.native="select(entry)">
-                  <md-subheader class="md-title" :class="{'md-accent':selectedEntry === entry}" v-html="entry.path.replace(/\//g,'<b>/</b>')"></md-subheader>
-                  <md-subheader :md-theme="entry.method" class="md-primary">{{entry.method}}</md-subheader>
-                </md-list-item>
-              </md-list>
-            </md-list-expand>
-          </md-list-item>
+        <md-list-item v-for="(entries, tag) in tags" :key="tag" md-expand-multiple>
+          <span class="md-title">{{tag}}</span>
+          <md-list-expand>
+            <md-list>
+              <md-list-item v-for="(entry, i) in entries" :key="i" @click.native="select(entry)">
+                <md-subheader class="md-title" :class="{'md-accent':selectedEntry === entry}" v-html="entry.path.replace(/\//g,'<b>/</b>')"></md-subheader>
+                <md-subheader :md-theme="entry.method" class="md-primary">{{entry.method}}</md-subheader>
+              </md-list-item>
+            </md-list>
+          </md-list-expand>
+        </md-list-item>
       </md-list>
 
 
@@ -51,20 +51,20 @@
 
       <md-layout md-column md-flex-offset="5" md-flex="true" v-if="selectedEntry">
 
-          <h3 class="md-headline">{{selectedEntry.summary}}</h3>
-          <div>
-            <md-button class="md-raised md-primary" @click.native="openSidenav">Make request</md-button>
-          </div>
+        <h3 class="md-headline">{{selectedEntry.summary}}</h3>
+        <div>
+          <md-button class="md-raised md-primary" @click.native="openSidenav">Make request</md-button>
+        </div>
 
-          <!-- <div v-if="selectedEntry.description">
+        <!-- <div v-if="selectedEntry.description">
           <h4>Implementation Notes</h4> {{selectedEntry.description}}
         </div> -->
 
-          <h4 v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">Parameters</h4>
-          <parameters-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog"></parameters-table>
+        <h4 v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">Parameters</h4>
+        <parameters-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog"></parameters-table>
 
-          <h4>Responses</h4>
-          <responses-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog"></responses-table>
+        <h4>Responses</h4>
+        <responses-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog"></responses-table>
 
       </md-layout>
     </md-layout>
@@ -79,7 +79,7 @@
           <schema-view :schema="currentSchema"></schema-view>
         </md-tab>
         <md-tab id="raw" md-label="Raw">
-<pre>{{ JSON.stringify(currentSchema, null, 2)}}</pre>
+          <pre>{{ JSON.stringify(currentSchema, null, 2)}}</pre>
         </md-tab>
       </md-tabs>
     </md-dialog-content>
@@ -152,8 +152,13 @@ import SchemaView from './SchemaView.vue'
 
 export default {
   name: 'open-api',
-  components: { RequestForm, ResponsesTable, ParametersTable, SchemaView },
-  props: ['api'],
+  components: {
+    RequestForm,
+    ResponsesTable,
+    ParametersTable,
+    SchemaView
+  },
+  props: ['api', 'headers', 'queryParams'],
   data: () => ({
     selectedEntry: null,
     currentSchema: ' ',
@@ -188,8 +193,30 @@ export default {
   },
   methods: {
     marked,
+    reset(entry) {
+      this.currentRequest.params = {};
+      (entry.parameters || []).forEach(p => {
+        this.currentRequest.params[p.name] = (p.in === 'query' && this.queryParams && this.queryParams[p.name]) || (p.in === 'header' && this.headers && this.headers[p.name])
+        if (!this.currentRequest.params[p.name]) {
+          if (p.schema && p.schema.enum) {
+            this.currentRequest.params[p.name] = p.schema.enum[0]
+          }
+          if (p.schema && p.schema.type === 'array') {
+            this.currentRequest.params[p.name] = []
+          }
+          if (p.example) {
+            this.currentRequest.params[p.name] = p.example
+          }
+        }
+      })
+      if (entry.requestBody) {
+        this.currentRequest.contentType = entry.requestBody.selectedType
+        const example = entry.requestBody.content[this.currentRequest.contentType].example
+        this.currentRequest.body = typeof example === 'string' ? example : JSON.stringify(example, null, 2)
+      }
+    },
     select(entry) {
-      reset(this.currentRequest, entry)
+      this.reset(entry)
       this.selectedEntry = entry
     },
     openSchemaDialog(schema) {
@@ -201,7 +228,7 @@ export default {
       this.$refs.examplesDialog.open()
     },
     openSidenav() {
-      reset(this.currentRequest, this.selectedEntry)
+      this.reset(this.selectedEntry)
       this.currentResponse = ''
       this.$refs.sidenav.open()
     },
@@ -222,31 +249,6 @@ export default {
 /*
  * HTTP requests utils
  */
-
-function reset(request, entry) {
-  request.params = Object.assign({}, ...(entry.parameters || []).map(p => ({
-    [p.name]: p.schema.enum ? p.schema.enum[0] : (p.schema.type === 'array' ? [] : null)
-  })))
-
-  request.params = {};
-  (entry.parameters || []).forEach(p => {
-    request.params[p.name] = null
-    if (p.schema && p.schema.enum) {
-      request.params[p.name] = p.schema.enum[0]
-    }
-    if (p.schema && p.schema.type === 'array') {
-      request.params[p.name] = []
-    }
-    if (p.example) {
-      request.params[p.name] = p.example
-    }
-  })
-  if (entry.requestBody) {
-    request.contentType = entry.requestBody.selectedType
-    const example = entry.requestBody.content[request.contentType].example
-    request.body = typeof example === 'string' ? example : JSON.stringify(example, null, 2)
-  }
-}
 
 function fetch(request, entry, api) {
   let params = Object.assign({}, ...(entry.parameters || [])
@@ -282,74 +284,73 @@ function fetch(request, entry, api) {
  * Tags management utils
  */
 
- import deref from 'json-schema-deref-local'
+import deref from 'json-schema-deref-local'
 
- const defaultStyle = {
-   query: 'form',
-   path: 'simple',
-   header: 'simple',
-   cookie: 'form'
- }
+const defaultStyle = {
+  query: 'form',
+  path: 'simple',
+  header: 'simple',
+  cookie: 'form'
+}
 
- function processContent(contentType, api) {
-   // Spec allow examples as an item or an array. In the API or in the schema
-   // we always fall back on an array
-   if (contentType.schema) {
-     contentType.examples = contentType.examples || contentType.schema.examples
-     contentType.example = contentType.example || contentType.schema.example
-   }
+function processContent(contentType, api) {
+  // Spec allow examples as an item or an array. In the API or in the schema
+  // we always fall back on an array
+  if (contentType.schema) {
+    contentType.examples = contentType.examples || contentType.schema.examples
+    contentType.example = contentType.example || contentType.schema.example
+  }
 
-   if (contentType.example) {
-     contentType.examples = [contentType.example]
-   }
- }
+  if (contentType.example) {
+    contentType.examples = [contentType.example]
+  }
+}
 
 function getTag(api) {
-   const derefAPI = deref(api)
-   var tags = {}
-   Object.keys(derefAPI.paths).forEach(function(path) {
-     Object.keys(derefAPI.paths[path]).forEach(function(method) {
-       let entry = derefAPI.paths[path][method]
-       entry.method = method
-       entry.path = path
-         // Filling tags entries
-       entry.tags = entry.tags || []
-       if (!entry.tags.length) {
-         entry.tags.push('No category')
-       }
-       entry.tags.forEach(function(tag) {
-         tags[tag] = tags[tag] || []
-         tags[tag].push(entry)
-       })
-       if (entry.parameters) {
-         entry.parameters.forEach(p => {
-           p.style = p.style || defaultStyle[p.in]
-           p.explode = p.explode || (p.style === 'form')
-           p.schema = p.schema || {
-             type: 'string'
-           }
-         })
-       }
-       if (entry.requestBody) {
-         if (entry.requestBody.content) {
-           Vue.set(entry.requestBody, 'selectedType', Object.keys(entry.requestBody.content)[0])
-           entry.requestBody.required = true
-           Object.values(entry.requestBody.content).forEach(contentType => processContent(contentType, api))
-         }
-       }
+  const derefAPI = deref(api)
+  var tags = {}
+  Object.keys(derefAPI.paths).forEach(function(path) {
+    Object.keys(derefAPI.paths[path]).forEach(function(method) {
+      let entry = derefAPI.paths[path][method]
+      entry.method = method
+      entry.path = path
+      // Filling tags entries
+      entry.tags = entry.tags || []
+      if (!entry.tags.length) {
+        entry.tags.push('No category')
+      }
+      entry.tags.forEach(function(tag) {
+        tags[tag] = tags[tag] || []
+        tags[tag].push(entry)
+      })
+      if (entry.parameters) {
+        entry.parameters.forEach(p => {
+          p.style = p.style || defaultStyle[p.in]
+          p.explode = p.explode || (p.style === 'form')
+          p.schema = p.schema || {
+            type: 'string'
+          }
+        })
+      }
+      if (entry.requestBody) {
+        if (entry.requestBody.content) {
+          Vue.set(entry.requestBody, 'selectedType', Object.keys(entry.requestBody.content)[0])
+          entry.requestBody.required = true
+          Object.values(entry.requestBody.content).forEach(contentType => processContent(contentType, api))
+        }
+      }
 
-       // Some preprocessing with responses
-       entry.responses = entry.responses || {}
-       Object.values(entry.responses).forEach(response => {
-         if (response.content) {
-           // preselecting responses mime-type
-           Vue.set(response, 'selectedType', Object.keys(response.content)[0])
-           Object.values(response.content).forEach(contentType => processContent(contentType, api))
-         }
-       })
-     })
-   })
-   return tags
- }
-
+      // Some preprocessing with responses
+      entry.responses = entry.responses || {}
+      Object.values(entry.responses).forEach(response => {
+        if (response.content) {
+          // preselecting responses mime-type
+          Vue.set(response, 'selectedType', Object.keys(response.content)[0])
+          Object.values(response.content).forEach(contentType => processContent(contentType, api))
+        }
+      })
+    })
+  })
+  return tags
+}
 </script>

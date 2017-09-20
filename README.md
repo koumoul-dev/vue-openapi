@@ -33,12 +33,16 @@ Vue.use(VueResource)
 
 new Vue({
   el: '#app',
-  template: '<open-api v-if="jsonApi" :api="jsonApi"></open-api>',
-  data: function(){
-    return {
-      jsonApi: jsonApi
+  template: '<open-api v-if="jsonApi" :api="jsonApi" md-theme="\'default\'" :query-params="queryParams" :headers="headers"></open-api>',
+  data: () => ({
+    jsonApi: jsonApi,
+    queryParams: {
+      userId: 'john_doe'
+    },
+    headers: {
+      api_key: 'my_api_key'
     }
-  },
+  }),
   components: {
     OpenApi
   }

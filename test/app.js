@@ -15,12 +15,16 @@ Vue.material.registerTheme('default', {
 
 new Vue({
   el: '#app',
-  template: '<open-api :api="jsonApi" md-theme="\'default\'"></open-api>',
-  data: function() {
-    return {
-      jsonApi: jsonApi
+  template: '<open-api :api="jsonApi" md-theme="\'default\'" :query-params="queryParams" :headers="headers"></open-api>',
+  data: () => ({
+    jsonApi: jsonApi,
+    queryParams: {
+      status: ['test']
+    },
+    headers: {
+      api_key: 'myapikey'
     }
-  },
+  }),
   components: {
     OpenApi
   }
