@@ -251,7 +251,7 @@ function fetch(request, entry, api) {
     headers
   }
   if (entry.requestBody) {
-    httpRequest.headers['Content-type'] = request.contentType
+    httpRequest.headers['Content-type'] = entry.requestBody.selectedType
     httpRequest.body = request.body
   }
   return Vue.http(httpRequest)
