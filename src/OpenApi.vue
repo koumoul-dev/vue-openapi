@@ -4,7 +4,7 @@
     <md-layout md-row md-flex="90" md-align="center">
       <md-layout md-column md-flex="65">
         <h2 class="md-display-2">{{api.info.title}}</h2>
-        <div v-html="marked(api.info.description)"></div>
+        <div v-if="api.info.description" v-html="marked(api.info.description)"></div>
       </md-layout>
       <md-layout md-flex="5"></md-layout>
       <md-layout md-column md-flex="20">
