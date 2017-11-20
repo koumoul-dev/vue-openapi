@@ -26,7 +26,7 @@
       </md-input-container>
 
       <md-chips v-model="currentRequest.params[parameter.name]" :md-input-placeholder="parameter.name" :md-input-type="parameter.schema.items.type" v-if="parameter.schema.type === 'array' && !parameter.schema.items.enum">
-        <template scope="chip">{{ chip.value }}</template>
+        <template slot-scope="chip">{{ chip.value }}</template>
       </md-chips>
 
       <md-checkbox v-if="parameter.schema.type === 'boolean'" v-model="currentRequest.params[parameter.name]">{{parameter.name}}</md-checkbox>
