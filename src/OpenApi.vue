@@ -134,20 +134,6 @@ import SchemaView from './SchemaView.vue'
 import VueMaterial from 'vue-material'
 
 Vue.use(VueMaterial)
-Vue.material.registerTheme({
-  get: {
-    primary: 'blue'
-  },
-  post: {
-    primary: 'green'
-  },
-  put: {
-    primary: 'orange'
-  },
-  delete: {
-    primary: 'red'
-  }
-})
 
 export default {
   name: 'open-api',
@@ -170,6 +156,25 @@ export default {
   }),
   mounted: function() {
     this.$refs.menu.$children[0].toggleExpandList()
+  },
+  created(){
+    Vue.material.registerTheme({
+      get: {
+        primary: 'blue'
+      },
+      post: {
+        primary: 'green'
+      },
+      put: {
+        primary: 'orange'
+      },
+      patch: {
+        primary: 'orange'
+      },
+      delete: {
+        primary: 'red'
+      }
+    })
   },
   computed: {
     tags: function() {
