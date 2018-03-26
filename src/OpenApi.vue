@@ -71,7 +71,7 @@
 
               <md-layout md-column md-flex="60">
                 <h2>Response</h2>
-                <pre>{{currentResponse}}</pre>
+                <response-display v-if="currentResponse" :entry="selectedEntry" :response="currentResponse"></response-display>
               </md-layout>
             </md-layout>
           </md-tab>
@@ -128,6 +128,7 @@
 import Vue from 'vue'
 import marked from 'marked'
 import RequestForm from './RequestForm.vue'
+import ResponseDisplay from './ResponseDisplay.vue'
 import ResponsesTable from './ResponsesTable.vue'
 import ParametersTable from './ParametersTable.vue'
 import SchemaView from './SchemaView.vue'
@@ -139,6 +140,7 @@ export default {
   name: 'open-api',
   components: {
     RequestForm,
+    ResponseDisplay,
     ResponsesTable,
     ParametersTable,
     SchemaView
@@ -152,12 +154,12 @@ export default {
       contentType: '',
       body: ''
     },
-    currentResponse: ''
+    currentResponse: null
   }),
   mounted: function() {
     this.$refs.menu.$children[0].toggleExpandList()
   },
-  created(){
+  created() {
     Vue.material.registerTheme({
       get: {
         primary: 'blue'
@@ -218,11 +220,11 @@ export default {
       this.$refs.examplesDialog.open()
     },
     request() {
-      this.currentResponse = ''
+      this.currentResponse = null
       fetch(this.currentRequest, this.selectedEntry, this.api).then(res => {
-        this.currentResponse = JSON.stringify(res.body, null, 2)
+        this.currentResponse = res
       }, res => {
-        this.currentResponse = JSON.stringify(res.body, null, 2)
+        this.currentResponse = res
       })
     }
   }
