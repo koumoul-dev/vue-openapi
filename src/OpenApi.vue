@@ -50,7 +50,8 @@
       </md-layout>
 
       <md-layout md-column md-flex-offset="5" md-flex="true" v-if="selectedEntry">
-        <h2 class="md-title">{{selectedEntry.summary}}</h2>
+        <h2 class="md-title">{{selectedEntry.title || selectedEntry.summary}}</h2>
+        <p class="entry-description" v-html="marked(selectedEntry.description)"></p>
         <h3 class="md-subheading">{{selectedEntry.method.toUpperCase()}} {{api.servers[0].url + selectedEntry.path}}</h3>
         <md-tabs md-right class="md-transparent" style="margin-top:-54px">
           <md-tab md-label="Documentation">
@@ -122,6 +123,10 @@
 .schema-dialog .md-dialog {
   min-width: 800px;
 }
+
+.openapi .entry-description {
+  margin: 0;
+}
 </style>
 
 <script>
@@ -152,7 +157,8 @@ export default {
     currentExamples: [],
     currentRequest: {
       contentType: '',
-      body: ''
+      body: '',
+      params: {}
     },
     currentResponse: null
   }),
@@ -186,21 +192,22 @@ export default {
   methods: {
     marked,
     reset(entry) {
-      this.currentRequest.params = {};
+      const newParams = {};
       (entry.parameters || []).forEach(p => {
         this.currentRequest.params[p.name] = (p.in === 'query' && this.queryParams && this.queryParams[p.name]) || (p.in === 'header' && this.headers && this.headers[p.name]) || null
-        if (!this.currentRequest.params[p.name]) {
+        if (!newParams[p.name]) {
           if (p.schema && p.schema.enum) {
-            this.currentRequest.params[p.name] = p.schema.enum[0]
+            newParams[p.name] = p.schema.enum[0]
           }
           if (p.schema && p.schema.type === 'array') {
-            this.currentRequest.params[p.name] = []
+            newParams[p.name] = []
           }
           if (p.example) {
-            this.currentRequest.params[p.name] = p.example
+            newParams[p.name] = p.example
           }
         }
       })
+      this.currentRequest.params = newParams
       if (entry.requestBody) {
         this.currentRequest.contentType = entry.requestBody.selectedType
         const example = entry.requestBody.content[this.currentRequest.contentType].example

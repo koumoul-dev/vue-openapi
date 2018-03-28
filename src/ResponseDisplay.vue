@@ -37,4 +37,7 @@ export default {
 </script>
 
 <style lang="css">
+.response-display pre {
+  white-space: pre-wrap;
+}
 </style>
