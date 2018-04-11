@@ -51,7 +51,7 @@
 
       <md-layout md-column md-flex-offset="5" md-flex="true" v-if="selectedEntry">
         <h2 class="md-title">{{selectedEntry.title || selectedEntry.summary}}</h2>
-        <p class="entry-description" v-html="marked(selectedEntry.description)"></p>
+        <p class="entry-description" v-if="selectedEntry.description" v-html="marked(selectedEntry.description)"></p>
         <h3 class="md-subheading">{{selectedEntry.method.toUpperCase()}} {{api.servers[0].url + selectedEntry.path}}</h3>
         <md-tabs md-right class="md-transparent" style="margin-top:-54px">
           <md-tab md-label="Documentation">
