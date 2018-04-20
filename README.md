@@ -9,17 +9,17 @@ See it in action :
 ## Install
 
 npm :
-```
-npm install --save vue-openapi
+```console
+$ npm install --save vue-openapi
 ```
 
 yarn:
-```
-yarn add vue-openapi
+```console
+$ yarn add vue-openapi
 ```
 
 ## Usage
-```
+```js
 import Vue from 'vue'
 import VueMaterial from 'vue-material'
 import OpenApi from 'vue-openapi'
