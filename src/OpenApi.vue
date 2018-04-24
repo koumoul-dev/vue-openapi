@@ -301,7 +301,11 @@ function getTag(api) {
   const derefAPI = deref(api)
   var tags = {}
   Object.keys(derefAPI.paths).forEach(function(path) {
-    Object.keys(derefAPI.paths[path]).forEach(function(method) {
+    Object.keys(derefAPI.paths[path])
+    .filter(function (method) {
+      return ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'].indexOf(method.toLowerCase()) !== -1
+    })
+    .forEach(function(method) {
       let entry = derefAPI.paths[path][method]
       entry.method = method
       entry.path = path
@@ -314,13 +318,16 @@ function getTag(api) {
         tags[tag] = tags[tag] || []
         tags[tag].push(entry)
       })
+
+      entry.parameters = entry.parameters || []
+      if (derefAPI.paths[path].parameters) {
+        entry.parameters = derefAPI.paths[path].parameters.concat(entry.parameters)
+      }
       if (entry.parameters) {
         entry.parameters.forEach(p => {
           p.style = p.style || defaultStyle[p.in]
           p.explode = p.explode || (p.style === 'form')
-          p.schema = p.schema || {
-            type: 'string'
-          }
+          p.schema = p.schema || { type: 'string' }
         })
       }
       if (entry.requestBody) {

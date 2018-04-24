@@ -48,6 +48,15 @@ new Vue({
   }
 })
 ```
+
+## Develop
+
+Run webpack in watch mode:
+
+    npm run dev
+
+Then open test/index.html in your browser.
+
 ## License
 
 [MIT License](license.md)
