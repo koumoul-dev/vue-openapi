@@ -44,7 +44,6 @@
         </md-list-item>
       </md-list>
 
-
       <md-layout md-flex-offset="5" md-flex="true" v-if="!selectedEntry">
         <p>Select an entry on the left to see detailed information...</p>
       </md-layout>
@@ -138,6 +137,7 @@ import ResponsesTable from './ResponsesTable.vue'
 import ParametersTable from './ParametersTable.vue'
 import SchemaView from './SchemaView.vue'
 import VueMaterial from 'vue-material'
+import deref from 'json-schema-ref-parser'
 
 Vue.use(VueMaterial)
 
@@ -160,12 +160,16 @@ export default {
       body: '',
       params: {}
     },
-    currentResponse: null
+    currentResponse: null,
+    tags: {}
   }),
   mounted: function() {
-    this.$refs.menu.$children[0].toggleExpandList()
+    if (this.$refs.menu.$children.length) this.$refs.menu.$children[0].toggleExpandList()
   },
   created() {
+    getTags(this.api).then(tags => {
+      this.tags = tags
+    })
     Vue.material.registerTheme({
       get: {
         primary: 'blue'
@@ -183,11 +187,6 @@ export default {
         primary: 'red'
       }
     })
-  },
-  computed: {
-    tags: function() {
-      return getTag(this.api)
-    }
   },
   methods: {
     marked,
@@ -275,8 +274,6 @@ function fetch(request, entry, api) {
  * Tags management utils
  */
 
-import deref from 'json-schema-deref-local'
-
 const defaultStyle = {
   query: 'form',
   path: 'simple',
@@ -297,16 +294,14 @@ function processContent(contentType, api) {
   }
 }
 
-function getTag(api) {
-  const derefAPI = deref(api)
-  var tags = {}
-  Object.keys(derefAPI.paths).forEach(function(path) {
+async function getTags(api) {
+  const derefAPI = await deref.dereference(api)
+  const tags = {}
+  Object.keys(derefAPI.paths).forEach(path => {
     Object.keys(derefAPI.paths[path])
-    .filter(function (method) {
-      return ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'].indexOf(method.toLowerCase()) !== -1
-    })
-    .forEach(function(method) {
-      let entry = derefAPI.paths[path][method]
+    .filter(method => ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'].indexOf(method.toLowerCase()) !== -1)
+    .forEach(method => {
+      const entry = derefAPI.paths[path][method]
       entry.method = method
       entry.path = path
       // Filling tags entries
@@ -314,7 +309,7 @@ function getTag(api) {
       if (!entry.tags.length) {
         entry.tags.push('No category')
       }
-      entry.tags.forEach(function(tag) {
+      entry.tags.forEach(tag => {
         tags[tag] = tags[tag] || []
         tags[tag].push(entry)
       })
@@ -351,4 +346,5 @@ function getTag(api) {
   })
   return tags
 }
+
 </script>
