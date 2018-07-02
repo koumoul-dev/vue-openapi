@@ -24,9 +24,8 @@
         <md-table-cell v-if="response.content && response.content[response.selectedType].schema">
           <md-icon class="md-accent" @click.native="openSchemaDialog(response.content[response.selectedType].schema)" style="cursor:pointer">open_in_new</md-icon>
         </md-table-cell>
-        <md-table-cell v-if="!response.content || !response.content[response.selectedType].examples"></md-table-cell>
-        <md-table-cell v-if="response.content && response.content[response.selectedType].examples">
-          <md-icon class="md-accent" @click.native="openExamplesDialog(response.content[response.selectedType].examples)" style="cursor:pointer">open_in_new</md-icon>
+        <md-table-cell>
+          <md-icon class="md-accent" v-if="examples(response)" @click.native="openExamplesDialog(examples(response))" style="cursor:pointer">open_in_new</md-icon>
         </md-table-cell>
       </md-table-row>
     </md-table-body>
@@ -38,7 +37,18 @@ import marked from 'marked'
 
 export default {
   props: [ 'selectedEntry', 'openSchemaDialog', 'openExamplesDialog' ],
-  methods: { marked }
+  methods: {
+    marked,
+    examples(response) {
+      const content = response.content && response.content[response.selectedType]
+      if (content) {
+        if (content.example) return {'Example': {summary: 'Default example', value: content.example}}
+        if (content.examples) return content.examples
+        if (content.schema && content.schema.example) return {'Example': {summary: 'Schema example', value: content.schema.example}}
+      }
+      return null
+    }
+  }
 }
 </script>
 

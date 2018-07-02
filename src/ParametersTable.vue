@@ -8,6 +8,7 @@
         <md-table-head>Values</md-table-head>
         <md-table-head>Location</md-table-head>
         <md-table-head>Required</md-table-head>
+        <md-table-head>Examples</md-table-head>
       </md-table-row>
     </md-table-header>
 
@@ -29,6 +30,9 @@
         <md-table-cell>
           <md-checkbox v-model="selectedEntry.requestBody.required" disabled></md-checkbox>
         </md-table-cell>
+        <md-table-cell>
+          <md-icon class="md-accent" v-if="examples(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType])" @click.native="openExamplesDialog(examples(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType]))" style="cursor:pointer">open_in_new</md-icon>
+        </md-table-cell>
       </md-table-row>
 
 
@@ -46,6 +50,9 @@
         <md-table-cell>
           <md-checkbox v-model="parameter.required" disabled></md-checkbox>
         </md-table-cell>
+        <md-table-cell>
+          <md-icon class="md-accent" v-if="examples(parameter)" @click.native="openExamplesDialog(examples(parameter))" style="cursor:pointer">open_in_new</md-icon>
+        </md-table-cell>
       </md-table-row>
     </md-table-body>
   </md-table>
@@ -56,7 +63,15 @@ import marked from 'marked'
 
 export default {
   props: [ 'selectedEntry', 'openSchemaDialog', 'openExamplesDialog' ],
-  methods: { marked }
+  methods: {
+    marked,
+    examples(content) {
+      if (content.example) return {'Example': {summary: 'Default example', value: content.example}}
+      if (content.examples) return content.examples
+      if (content.schema && content.schema.example) return {'Example': {summary: 'Schema example', value: content.schema.example}}
+      return null
+    }
+  }
 }
 </script>
 

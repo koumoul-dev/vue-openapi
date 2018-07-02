@@ -99,7 +99,7 @@
     </md-dialog-actions>
   </md-dialog>
 
-  <md-dialog-alert :md-content-html="currentExamples.map(example => `<pre>${JSON.stringify(example, null, 2)}</pre>`).join('<br>') + ' '" md-title="Examples" ref="examplesDialog"></md-dialog-alert>
+  <md-dialog-alert :md-content-html="Object.values(currentExamples).map(example => `<pre>${JSON.stringify(example.value, null, 2)}</pre>`).join('<br>') + ' '" md-title="Examples" ref="examplesDialog"></md-dialog-alert>
 
 </div>
 </template>
