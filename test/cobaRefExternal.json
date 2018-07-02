@@ -1,0 +1,37 @@
+{
+  "openapi": "3.0.0",
+  "servers": [
+    {
+      "url": "http://api.nyata.com/v1",
+      "description": "Production server version 1"
+    },
+    {
+      "url": "http://staging-api.example.com",
+      "description": "Staging server"
+    }
+  ],
+  "info": {
+    "description": "This is a server of Tabloid Nyata.\n",
+    "version": "0.1.0",
+    "title": "Tabloid Nyata Advertising",
+    "termsOfService": "http://www.ooolabs.id/tabloid-nyata-terms/",
+    "contact": {
+      "email": "developer@ooolabs.id"
+    },
+    "license": {
+      "name": "Proprietary license",
+      "url": "http://www.ooolabs.id/license/"
+    }
+  },
+  "tags": [
+    {
+      "name": "membership",
+      "description": "Everything about user, group, and role"
+    }
+  ],
+  "paths": {
+    "/membership": {
+      "$ref": "https://gist.githubusercontent.com/3mp3ri0r/307fa6314ad5a9e31a8ac9f04273a272/raw/1c7e1ba47f6a57861a41320a6f2a962352f2ac6a/membershipGetJson.json"
+    }
+  }
+}

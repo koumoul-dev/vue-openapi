@@ -1,0 +1,1147 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API du jeu de données : aides",
+    "version": "0.2.0",
+    "termsOfService": "https://koumoul.com/term-of-service",
+    "contact": {
+      "name": "Koumoul",
+      "url": "https://koumoul.com",
+      "email": "support@koumoul.com"
+    }
+  },
+  "servers": [{
+    "url": "https://koumoul.com/s/data-fair/api/v1/datasets/aides"
+  }],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Récupérer les informations du jeu de données.",
+        "operationId": "readDescription",
+        "tags": ["Métadonnées"],
+        "responses": {
+          "200": {
+            "description": "Les informations du jeu de données.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Dataset",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Identifier of the dataset"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "Short title of the dataset"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Detailed description of the dataset"
+                    },
+                    "file": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["name", "size", "encoding", "mimetype"],
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "Name of the file that was used to create or update this dataset"
+                        },
+                        "size": {
+                          "type": "number",
+                          "description": "Size of the file on disk"
+                        },
+                        "encoding": {
+                          "type": "string",
+                          "description": "Encoding of the file"
+                        },
+                        "mimetype": {
+                          "type": "string",
+                          "enum": ["text/csv"],
+                          "description": "Mime type of the file"
+                        },
+                        "schema": {
+                          "type": "array",
+                          "description": "JSON schema of the fields in the file"
+                        },
+                        "props": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "numLines": {
+                              "type": "number",
+                              "description": "Number of lines this file has."
+                            },
+                            "linesDelimiter": {
+                              "type": "string",
+                              "description": "New line character or characters (can be \r\n))"
+                            },
+                            "fieldsDelimiter": {
+                              "type": "string",
+                              "description": "Fields delimiter"
+                            },
+                            "escapeChar": {
+                              "type": "string",
+                              "description": "Character used to escape string"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "createdBy": {
+                      "type": "string",
+                      "description": "Id of the account that created this dataset"
+                    },
+                    "updatedBy": {
+                      "type": "string",
+                      "description": "Id of the account that last updated this dataset"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "description": "Creation date of this dataset",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "description": "Date of the last update for this dataset",
+                      "format": "date-time"
+                    },
+                    "owner": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["type", "id"],
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": ["user", "organization"],
+                          "description": "If the owner is a user or an organization"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "Identifier of the owner of this dataset"
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": ["loaded", "analyzed", "schematized", "indexed", "extended", "finalized", "error"],
+                      "description": "The processing steps of a dataset."
+                    },
+                    "schema": {
+                      "type": "array",
+                      "description": "JSON schema of the dataset"
+                    },
+                    "count": {
+                      "type": "number",
+                      "description": "The number of indexed documents of a dataset"
+                    },
+                    "bbox": {
+                      "type": "array",
+                      "description": "The spatial coverage of this dataset, in bounding box format.",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "license": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["title", "href"],
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "description": "Short title for the license"
+                        },
+                        "href": {
+                          "type": "string",
+                          "description": "The URL where the license can be read"
+                        }
+                      }
+                    },
+                    "origin": {
+                      "type": "string",
+                      "description": "The URL where the original data can be found"
+                    },
+                    "extensions": {
+                      "type": "array",
+                      "description": "Définition des enrichissements appliqués à ce jeu de données",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "active": {
+                            "type": "boolean",
+                            "description": "Toggle on and off the extension"
+                          },
+                          "forceNext": {
+                            "type": "boolean",
+                            "description": "Set to true to force overwriting extension results on next indexing."
+                          },
+                          "progress": {
+                            "type": "number",
+                            "description": "From 0 to 1 based on progress of the extension."
+                          },
+                          "error": {
+                            "type": "string",
+                            "description": "An error that occured during the last time the extension was run"
+                          },
+                          "remoteService": {
+                            "type": "string",
+                            "description": "L'identifiant du service distant utilisé pour l'enrichissement"
+                          },
+                          "action": {
+                            "type": "string",
+                            "description": "L'identifiant de l'action du service distant à utiliser pour l'enrichissement"
+                          },
+                          "select": {
+                            "type": "array",
+                            "description": "La liste des champs à sélectionner dans le retour du service distant. Tous les champs si absent ou vide.",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Mettre à jour les informations du jeu de données.",
+        "operationId": "writeDescription",
+        "tags": ["Métadonnées"],
+        "requestBody": {
+          "description": "Fichier à charger et informations de propriété",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "title": "Dataset",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifier of the dataset"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "Short title of the dataset"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Detailed description of the dataset"
+                  },
+                  "file": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["name", "size", "encoding", "mimetype"],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "Name of the file that was used to create or update this dataset"
+                      },
+                      "size": {
+                        "type": "number",
+                        "description": "Size of the file on disk"
+                      },
+                      "encoding": {
+                        "type": "string",
+                        "description": "Encoding of the file"
+                      },
+                      "mimetype": {
+                        "type": "string",
+                        "enum": ["text/csv"],
+                        "description": "Mime type of the file"
+                      },
+                      "schema": {
+                        "type": "array",
+                        "description": "JSON schema of the fields in the file"
+                      },
+                      "props": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "numLines": {
+                            "type": "number",
+                            "description": "Number of lines this file has."
+                          },
+                          "linesDelimiter": {
+                            "type": "string",
+                            "description": "New line character or characters (can be \r\n))"
+                          },
+                          "fieldsDelimiter": {
+                            "type": "string",
+                            "description": "Fields delimiter"
+                          },
+                          "escapeChar": {
+                            "type": "string",
+                            "description": "Character used to escape string"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "createdBy": {
+                    "type": "string",
+                    "description": "Id of the account that created this dataset"
+                  },
+                  "updatedBy": {
+                    "type": "string",
+                    "description": "Id of the account that last updated this dataset"
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "description": "Creation date of this dataset",
+                    "format": "date-time"
+                  },
+                  "updatedAt": {
+                    "type": "string",
+                    "description": "Date of the last update for this dataset",
+                    "format": "date-time"
+                  },
+                  "owner": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["type", "id"],
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["user", "organization"],
+                        "description": "If the owner is a user or an organization"
+                      },
+                      "id": {
+                        "type": "string",
+                        "description": "Identifier of the owner of this dataset"
+                      }
+                    }
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["loaded", "analyzed", "schematized", "indexed", "extended", "finalized", "error"],
+                    "description": "The processing steps of a dataset."
+                  },
+                  "schema": {
+                    "type": "array",
+                    "description": "JSON schema of the dataset"
+                  },
+                  "count": {
+                    "type": "number",
+                    "description": "The number of indexed documents of a dataset"
+                  },
+                  "bbox": {
+                    "type": "array",
+                    "description": "The spatial coverage of this dataset, in bounding box format.",
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "license": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["title", "href"],
+                    "properties": {
+                      "title": {
+                        "type": "string",
+                        "description": "Short title for the license"
+                      },
+                      "href": {
+                        "type": "string",
+                        "description": "The URL where the license can be read"
+                      }
+                    }
+                  },
+                  "origin": {
+                    "type": "string",
+                    "description": "The URL where the original data can be found"
+                  },
+                  "extensions": {
+                    "type": "array",
+                    "description": "Définition des enrichissements appliqués à ce jeu de données",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "active": {
+                          "type": "boolean",
+                          "description": "Toggle on and off the extension"
+                        },
+                        "forceNext": {
+                          "type": "boolean",
+                          "description": "Set to true to force overwriting extension results on next indexing."
+                        },
+                        "progress": {
+                          "type": "number",
+                          "description": "From 0 to 1 based on progress of the extension."
+                        },
+                        "error": {
+                          "type": "string",
+                          "description": "An error that occured during the last time the extension was run"
+                        },
+                        "remoteService": {
+                          "type": "string",
+                          "description": "L'identifiant du service distant utilisé pour l'enrichissement"
+                        },
+                        "action": {
+                          "type": "string",
+                          "description": "L'identifiant de l'action du service distant à utiliser pour l'enrichissement"
+                        },
+                        "select": {
+                          "type": "array",
+                          "description": "La liste des champs à sélectionner dans le retour du service distant. Tous les champs si absent ou vide.",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Les informations du jeu de données.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Dataset",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Identifier of the dataset"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "Short title of the dataset"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Detailed description of the dataset"
+                    },
+                    "file": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["name", "size", "encoding", "mimetype"],
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "Name of the file that was used to create or update this dataset"
+                        },
+                        "size": {
+                          "type": "number",
+                          "description": "Size of the file on disk"
+                        },
+                        "encoding": {
+                          "type": "string",
+                          "description": "Encoding of the file"
+                        },
+                        "mimetype": {
+                          "type": "string",
+                          "enum": ["text/csv"],
+                          "description": "Mime type of the file"
+                        },
+                        "schema": {
+                          "type": "array",
+                          "description": "JSON schema of the fields in the file"
+                        },
+                        "props": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "numLines": {
+                              "type": "number",
+                              "description": "Number of lines this file has."
+                            },
+                            "linesDelimiter": {
+                              "type": "string",
+                              "description": "New line character or characters (can be \r\n))"
+                            },
+                            "fieldsDelimiter": {
+                              "type": "string",
+                              "description": "Fields delimiter"
+                            },
+                            "escapeChar": {
+                              "type": "string",
+                              "description": "Character used to escape string"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "createdBy": {
+                      "type": "string",
+                      "description": "Id of the account that created this dataset"
+                    },
+                    "updatedBy": {
+                      "type": "string",
+                      "description": "Id of the account that last updated this dataset"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "description": "Creation date of this dataset",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "description": "Date of the last update for this dataset",
+                      "format": "date-time"
+                    },
+                    "owner": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["type", "id"],
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": ["user", "organization"],
+                          "description": "If the owner is a user or an organization"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "Identifier of the owner of this dataset"
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": ["loaded", "analyzed", "schematized", "indexed", "extended", "finalized", "error"],
+                      "description": "The processing steps of a dataset."
+                    },
+                    "schema": {
+                      "type": "array",
+                      "description": "JSON schema of the dataset"
+                    },
+                    "count": {
+                      "type": "number",
+                      "description": "The number of indexed documents of a dataset"
+                    },
+                    "bbox": {
+                      "type": "array",
+                      "description": "The spatial coverage of this dataset, in bounding box format.",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "license": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["title", "href"],
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "description": "Short title for the license"
+                        },
+                        "href": {
+                          "type": "string",
+                          "description": "The URL where the license can be read"
+                        }
+                      }
+                    },
+                    "origin": {
+                      "type": "string",
+                      "description": "The URL where the original data can be found"
+                    },
+                    "extensions": {
+                      "type": "array",
+                      "description": "Définition des enrichissements appliqués à ce jeu de données",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "active": {
+                            "type": "boolean",
+                            "description": "Toggle on and off the extension"
+                          },
+                          "forceNext": {
+                            "type": "boolean",
+                            "description": "Set to true to force overwriting extension results on next indexing."
+                          },
+                          "progress": {
+                            "type": "number",
+                            "description": "From 0 to 1 based on progress of the extension."
+                          },
+                          "error": {
+                            "type": "string",
+                            "description": "An error that occured during the last time the extension was run"
+                          },
+                          "remoteService": {
+                            "type": "string",
+                            "description": "L'identifiant du service distant utilisé pour l'enrichissement"
+                          },
+                          "action": {
+                            "type": "string",
+                            "description": "L'identifiant de l'action du service distant à utiliser pour l'enrichissement"
+                          },
+                          "select": {
+                            "type": "array",
+                            "description": "La liste des champs à sélectionner dans le retour du service distant. Tous les champs si absent ou vide.",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lines": {
+      "get": {
+        "summary": "Requêter les lignes du jeu de données.",
+        "operationId": "readLines",
+        "tags": ["Données"],
+        "parameters": [{
+          "in": "query",
+          "name": "page",
+          "description": "Le numéro de la page (indice de la pagination). Débute à 1.",
+          "required": false,
+          "schema": {
+            "default": 1,
+            "type": "integer"
+          }
+        }, {
+          "in": "query",
+          "name": "size",
+          "description": "Le nombre de résultats à retourner (taille de la pagination). 20 par défaut.",
+          "required": false,
+          "schema": {
+            "default": 20,
+            "type": "integer",
+            "max": 10000
+          }
+        }, {
+          "in": "query",
+          "name": "q",
+          "description": "\n  Champ de recherche simple. Ce paramètre peut-être utilisé pour exposer une fonctionalité de recherche textuelle riche aux utilisateurs sans risque de créer des erreurs de syntaxe.\n\n  Exemple: \"open data\" | \"open source\"\n\n  Pour plus d'information voir la documentation [ElasticSearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html) correspondante.\n    ",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }, {
+          "in": "query",
+          "name": "select",
+          "description": "La liste des champs à retourner",
+          "required": false,
+          "schema": {
+            "default": ["*"],
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["id_aid", "aid_nom", "aid_objet", "aid_operations_el", "aid_conditions", "aid_montant", "aid_benef", "aid_validation", "couverture_geo", "horodatage", "id_domaine", "handicapes", "femmes", "seniors", "jeunes", "date_fin", "status", "maj", "nb_org", "complements", "effectif", "duree_projet", "age_entreprise", "cache_indexation", "projets", "profils", "natures", "territoires", "contacts", "financeurs"]
+            }
+          },
+          "style": "commaDelimited"
+        }, {
+          "in": "query",
+          "name": "sort",
+          "description": "\n  Le tri à effectuer sous forme d'une liste de clés de champs séparées par des virgules.\n\n  Par défaut le tri est ascendant, si un nom de champ est préfixé par un \"-\" alors le tri sera descendant.\n\n  Exemple: ma_colonne,-ma_colonne2",
+          "required": false,
+          "default": [],
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["id_aid", "aid_validation", "couverture_geo", "id_domaine", "handicapes", "femmes", "seniors", "jeunes", "status", "nb_org", "complements", "effectif", "duree_projet", "age_entreprise", "cache_indexation", "projets", "profils", "natures", "contacts", "financeurs"]
+            }
+          },
+          "style": "commaDelimited"
+        }, {
+          "in": "query",
+          "name": "qs",
+          "description": "\n  Champ de filtre et recherche textuelle avancé. Ce paramètre permet d'effectuer des requêtes complexes sur la source de données. Vous pouvez spécifier des filtres par champs, créer des combinaisons logiques à volonté, etc.\n\n  Exemple: ma_colonne:\"du texte\" AND ma_colonne2:valeur\n\n  Pour plus d'information voir la documentation [ElasticSearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html) correspondante.\n  ",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }, {
+          "in": "query",
+          "name": "bbox",
+          "description": "Un filtre pour restreindre les résultats à une zone géographique. Le format est 'gauche,bas,droite,haut' autrement dit 'lonMin,latMin,lonMax,latMax'.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "style": "commaDelimited"
+        }, {
+          "in": "query",
+          "name": "xyz",
+          "description": "\n  Un filtre pour restreindre les résultats à une zone géographique avec les paramètres standards de tuiles géographiques x,y et z.\n\n  Le format est 'x,y,z'.\n  ",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "style": "commaDelimited"
+        }],
+        "responses": {
+          "200": {
+            "description": "Le résultat de la requête.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer",
+                      "description": "Le nombre total de résultat si on ignore la pagination"
+                    },
+                    "results": {
+                      "type": "array",
+                      "description": "Le tableau de résultats.",
+                      "items": {
+                        "type": "object",
+                        "properties": [{
+                          "key": "id_aid",
+                          "type": "integer",
+                          "x-originalName": "id_aid",
+                          "x-cardinality": 1668
+                        }, {
+                          "key": "aid_nom",
+                          "type": "string",
+                          "x-originalName": "aid_nom"
+                        }, {
+                          "key": "aid_objet",
+                          "type": "string",
+                          "x-originalName": "aid_objet"
+                        }, {
+                          "key": "aid_operations_el",
+                          "type": "string",
+                          "x-originalName": "aid_operations_el"
+                        }, {
+                          "key": "aid_conditions",
+                          "type": "string",
+                          "x-originalName": "aid_conditions"
+                        }, {
+                          "key": "aid_montant",
+                          "type": "string",
+                          "x-originalName": "aid_montant"
+                        }, {
+                          "key": "aid_benef",
+                          "type": "string",
+                          "x-originalName": "aid_benef"
+                        }, {
+                          "key": "aid_validation",
+                          "type": "string",
+                          "x-originalName": "aid_validation",
+                          "format": "date",
+                          "x-cardinality": 198
+                        }, {
+                          "key": "couverture_geo",
+                          "type": "integer",
+                          "x-originalName": "couverture_geo",
+                          "x-cardinality": 3,
+                          "enum": [1, 2, 3]
+                        }, {
+                          "key": "horodatage",
+                          "type": "string",
+                          "x-originalName": "horodatage"
+                        }, {
+                          "key": "id_domaine",
+                          "type": "boolean",
+                          "x-originalName": "id_domaine",
+                          "x-cardinality": 2,
+                          "enum": [0, 1]
+                        }, {
+                          "key": "handicapes",
+                          "type": "boolean",
+                          "x-originalName": "handicapes",
+                          "x-cardinality": 1,
+                          "enum": [0]
+                        }, {
+                          "key": "femmes",
+                          "type": "boolean",
+                          "x-originalName": "femmes",
+                          "x-cardinality": 1,
+                          "enum": [0]
+                        }, {
+                          "key": "seniors",
+                          "type": "boolean",
+                          "x-originalName": "seniors",
+                          "x-cardinality": 1,
+                          "enum": [0]
+                        }, {
+                          "key": "jeunes",
+                          "type": "boolean",
+                          "x-originalName": "jeunes",
+                          "x-cardinality": 1,
+                          "enum": [0]
+                        }, {
+                          "key": "date_fin",
+                          "type": "string",
+                          "x-originalName": "date_fin"
+                        }, {
+                          "key": "status",
+                          "type": "boolean",
+                          "x-originalName": "status",
+                          "x-cardinality": 1,
+                          "enum": [1]
+                        }, {
+                          "key": "maj",
+                          "type": "string",
+                          "x-originalName": "maj"
+                        }, {
+                          "key": "nb_org",
+                          "type": "integer",
+                          "x-originalName": "nb_org",
+                          "x-cardinality": 19
+                        }, {
+                          "key": "complements",
+                          "type": "boolean",
+                          "x-originalName": "complements",
+                          "x-cardinality": 0,
+                          "enum": []
+                        }, {
+                          "key": "effectif",
+                          "type": "string",
+                          "x-originalName": "effectif",
+                          "format": "uri-reference",
+                          "x-cardinality": 11
+                        }, {
+                          "key": "duree_projet",
+                          "type": "boolean",
+                          "x-originalName": "duree_projet",
+                          "x-cardinality": 1,
+                          "enum": [0]
+                        }, {
+                          "key": "age_entreprise",
+                          "type": "string",
+                          "x-originalName": "age_entreprise",
+                          "format": "uri-reference",
+                          "x-cardinality": 3,
+                          "enum": ["1,2", "1", "2"]
+                        }, {
+                          "key": "cache_indexation",
+                          "type": "boolean",
+                          "x-originalName": "cache_indexation",
+                          "x-cardinality": 0,
+                          "enum": []
+                        }, {
+                          "key": "projets",
+                          "type": "string",
+                          "x-originalName": "projets",
+                          "format": "uri-reference",
+                          "x-cardinality": 481
+                        }, {
+                          "key": "profils",
+                          "type": "string",
+                          "x-originalName": "profils",
+                          "format": "uri-reference",
+                          "x-cardinality": 232
+                        }, {
+                          "key": "natures",
+                          "type": "string",
+                          "x-originalName": "natures",
+                          "format": "uri-reference",
+                          "x-cardinality": 45
+                        }, {
+                          "key": "territoires",
+                          "type": "string",
+                          "x-originalName": "territoires"
+                        }, {
+                          "key": "contacts",
+                          "type": "string",
+                          "x-originalName": "contacts",
+                          "format": "uri-reference",
+                          "x-cardinality": 817
+                        }, {
+                          "key": "financeurs",
+                          "type": "string",
+                          "x-originalName": "financeurs",
+                          "format": "uri-reference",
+                          "x-cardinality": 467
+                        }]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/values_agg": {
+      "get": {
+        "summary": "Récupérer des informations agrégées en fonction des valeurs d'un champ.",
+        "operationId": "getValuesAgg",
+        "tags": ["Données"],
+        "parameters": [{
+          "in": "query",
+          "name": "field",
+          "description": "Le champ en fonction des valeurs duquel grouper les lignes du jeu de donénes",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": ["id_aid", "aid_validation", "couverture_geo", "id_domaine", "handicapes", "femmes", "seniors", "jeunes", "status", "nb_org", "complements", "effectif", "duree_projet", "age_entreprise", "cache_indexation", "projets", "profils", "natures", "contacts", "financeurs"]
+          }
+        }, {
+          "in": "query",
+          "name": "metric",
+          "description": "La métrique à appliquer",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": ["avg", "sum", "min", "max"]
+          }
+        }, {
+          "in": "query",
+          "name": "metric_field",
+          "description": "Le champ sur lequel effectuer la calcul de métrique",
+          "required": false,
+          "schema": {
+            "type": "string",
+            "enum": []
+          }
+        }, {
+          "in": "query",
+          "name": "agg_size",
+          "description": "Le nombre de buckets pour l'agrégation (défaut 20)",
+          "required": false,
+          "schema": {
+            "default": 20,
+            "type": "integer",
+            "max": 10000
+          }
+        }, {
+          "in": "query",
+          "name": "size",
+          "description": "Le nombre de résultats à retourner (taille de la pagination). 20 par défaut.",
+          "required": false,
+          "schema": {
+            "default": 20,
+            "type": "integer",
+            "max": 10000
+          }
+        }, {
+          "in": "query",
+          "name": "q",
+          "description": "\n  Champ de recherche simple. Ce paramètre peut-être utilisé pour exposer une fonctionalité de recherche textuelle riche aux utilisateurs sans risque de créer des erreurs de syntaxe.\n\n  Exemple: \"open data\" | \"open source\"\n\n  Pour plus d'information voir la documentation [ElasticSearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html) correspondante.\n    ",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }, {
+          "in": "query",
+          "name": "select",
+          "description": "La liste des champs à retourner",
+          "required": false,
+          "schema": {
+            "default": ["*"],
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["id_aid", "aid_nom", "aid_objet", "aid_operations_el", "aid_conditions", "aid_montant", "aid_benef", "aid_validation", "couverture_geo", "horodatage", "id_domaine", "handicapes", "femmes", "seniors", "jeunes", "date_fin", "status", "maj", "nb_org", "complements", "effectif", "duree_projet", "age_entreprise", "cache_indexation", "projets", "profils", "natures", "territoires", "contacts", "financeurs"]
+            }
+          },
+          "style": "commaDelimited"
+        }, {
+          "in": "query",
+          "name": "sort",
+          "description": "\n  Le tri à effectuer sous forme d'une liste de clés de champs séparées par des virgules.\n\n  Par défaut le tri est ascendant, si un nom de champ est préfixé par un \"-\" alors le tri sera descendant.\n\n  Exemple: ma_colonne,-ma_colonne2",
+          "required": false,
+          "default": [],
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["id_aid", "aid_validation", "couverture_geo", "id_domaine", "handicapes", "femmes", "seniors", "jeunes", "status", "nb_org", "complements", "effectif", "duree_projet", "age_entreprise", "cache_indexation", "projets", "profils", "natures", "contacts", "financeurs"]
+            }
+          },
+          "style": "commaDelimited"
+        }, {
+          "in": "query",
+          "name": "qs",
+          "description": "\n  Champ de filtre et recherche textuelle avancé. Ce paramètre permet d'effectuer des requêtes complexes sur la source de données. Vous pouvez spécifier des filtres par champs, créer des combinaisons logiques à volonté, etc.\n\n  Exemple: ma_colonne:\"du texte\" AND ma_colonne2:valeur\n\n  Pour plus d'information voir la documentation [ElasticSearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html) correspondante.\n  ",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }, {
+          "in": "query",
+          "name": "bbox",
+          "description": "Un filtre pour restreindre les résultats à une zone géographique. Le format est 'gauche,bas,droite,haut' autrement dit 'lonMin,latMin,lonMax,latMax'.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "style": "commaDelimited"
+        }, {
+          "in": "query",
+          "name": "xyz",
+          "description": "\n  Un filtre pour restreindre les résultats à une zone géographique avec les paramètres standards de tuiles géographiques x,y et z.\n\n  Le format est 'x,y,z'.\n  ",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "style": "commaDelimited"
+        }],
+        "responses": {
+          "200": {
+            "description": "Les informations du jeu de données agrégées par valeurs d'un champ.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metric_agg": {
+      "get": {
+        "summary": "Calculer une métrique sur un ensemble de lignes.",
+        "operationId": "getMetricAgg",
+        "tags": ["Données"],
+        "parameters": [{
+          "in": "query",
+          "name": "metric",
+          "description": "La métrique à appliquer",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": ["avg", "sum", "min", "max"]
+          }
+        }, {
+          "in": "query",
+          "name": "metric_field",
+          "description": "Le champ sur lequel effectuer la calcul de métrique",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": []
+          }
+        }, {
+          "in": "query",
+          "name": "agg_size",
+          "description": "Le nombre de buckets pour l'agrégation (défaut 20)",
+          "required": false,
+          "schema": {
+            "default": 20,
+            "type": "integer",
+            "max": 10000
+          }
+        }, {
+          "in": "query",
+          "name": "size",
+          "description": "Le nombre de résultats à retourner (taille de la pagination). 20 par défaut.",
+          "required": false,
+          "schema": {
+            "default": 20,
+            "type": "integer",
+            "max": 10000
+          }
+        }, {
+          "in": "query",
+          "name": "q",
+          "description": "\n  Champ de recherche simple. Ce paramètre peut-être utilisé pour exposer une fonctionalité de recherche textuelle riche aux utilisateurs sans risque de créer des erreurs de syntaxe.\n\n  Exemple: \"open data\" | \"open source\"\n\n  Pour plus d'information voir la documentation [ElasticSearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html) correspondante.\n    ",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }, {
+          "in": "query",
+          "name": "select",
+          "description": "La liste des champs à retourner",
+          "required": false,
+          "schema": {
+            "default": ["*"],
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["id_aid", "aid_nom", "aid_objet", "aid_operations_el", "aid_conditions", "aid_montant", "aid_benef", "aid_validation", "couverture_geo", "horodatage", "id_domaine", "handicapes", "femmes", "seniors", "jeunes", "date_fin", "status", "maj", "nb_org", "complements", "effectif", "duree_projet", "age_entreprise", "cache_indexation", "projets", "profils", "natures", "territoires", "contacts", "financeurs"]
+            }
+          },
+          "style": "commaDelimited"
+        }, {
+          "in": "query",
+          "name": "sort",
+          "description": "\n  Le tri à effectuer sous forme d'une liste de clés de champs séparées par des virgules.\n\n  Par défaut le tri est ascendant, si un nom de champ est préfixé par un \"-\" alors le tri sera descendant.\n\n  Exemple: ma_colonne,-ma_colonne2",
+          "required": false,
+          "default": [],
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["id_aid", "aid_validation", "couverture_geo", "id_domaine", "handicapes", "femmes", "seniors", "jeunes", "status", "nb_org", "complements", "effectif", "duree_projet", "age_entreprise", "cache_indexation", "projets", "profils", "natures", "contacts", "financeurs"]
+            }
+          },
+          "style": "commaDelimited"
+        }, {
+          "in": "query",
+          "name": "qs",
+          "description": "\n  Champ de filtre et recherche textuelle avancé. Ce paramètre permet d'effectuer des requêtes complexes sur la source de données. Vous pouvez spécifier des filtres par champs, créer des combinaisons logiques à volonté, etc.\n\n  Exemple: ma_colonne:\"du texte\" AND ma_colonne2:valeur\n\n  Pour plus d'information voir la documentation [ElasticSearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html) correspondante.\n  ",
+          "required": false,
+          "schema": {
+            "type": "string"
+          }
+        }, {
+          "in": "query",
+          "name": "bbox",
+          "description": "Un filtre pour restreindre les résultats à une zone géographique. Le format est 'gauche,bas,droite,haut' autrement dit 'lonMin,latMin,lonMax,latMax'.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "style": "commaDelimited"
+        }, {
+          "in": "query",
+          "name": "xyz",
+          "description": "\n  Un filtre pour restreindre les résultats à une zone géographique avec les paramètres standards de tuiles géographiques x,y et z.\n\n  Le format est 'x,y,z'.\n  ",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "style": "commaDelimited"
+        }],
+        "responses": {
+          "200": {
+            "description": "Le résultat du calcul.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Documentation sur Github",
+    "url": "https://koumoul-dev.github.io/data-fair/"
+  }
+}
