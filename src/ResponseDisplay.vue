@@ -19,13 +19,15 @@
 </template>
 
 <script>
+import stringify from 'json-stringify-pretty-compact'
+
 export default {
   props: ['response', 'entry'],
   computed: {
     formattedBody() {
       let res
       try {
-        res = JSON.stringify(this.response.body, null, 2)
+        res = stringify(this.response.body, null, 2)
         if (typeof res === 'string') res = this.response.body
       } catch (err) {
         res = this.response.body

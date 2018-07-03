@@ -29,6 +29,7 @@
     "json-formatter-js": "^2.2.0",
     "json-schema-ref-parser": "^5.0.3",
     "json-schema-view-js": "^1.0.1",
+    "json-stringify-pretty-compact": "^1.2.0",
     "marked": "^0.3.19",
     "vue-material": "^0.8.1",
     "vue-resource": "^1.5.1"

@@ -4,7 +4,7 @@ import OpenApi from '../src/OpenApi.vue'
 import 'vue-material/dist/vue-material.css'
 import VueResource from 'vue-resource'
 
-import jsonApi from './multiple-example-koumoul.json'
+import jsonApi from './cowpi.json'
 
 Vue.use(VueResource)
 Vue.use(VueMaterial)

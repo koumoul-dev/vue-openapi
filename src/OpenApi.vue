@@ -89,7 +89,7 @@
           <schema-view :schema="currentSchema"></schema-view>
         </md-tab>
         <md-tab id="raw" md-label="Raw">
-          <pre>{{ JSON.stringify(currentSchema, null, 2)}}</pre>
+          <pre>{{ stringify(currentSchema, null, 2)}}</pre>
         </md-tab>
       </md-tabs>
     </md-dialog-content>
@@ -99,7 +99,22 @@
     </md-dialog-actions>
   </md-dialog>
 
-  <md-dialog-alert :md-content-html="Object.values(currentExamples).map(example => `<pre>${JSON.stringify(example.value, null, 2)}</pre>`).join('<br>') + ' '" md-title="Examples" ref="examplesDialog"></md-dialog-alert>
+  <md-dialog ref="examplesDialog" class="examples-dialog">
+    <md-dialog-title>Examples</md-dialog-title>
+
+    <md-dialog-content>
+      <md-tabs>
+        <md-tab v-for="(example, label) in currentExamples" :md-label="label">
+          <h5>{{example.summary}}</h5>
+          <pre>{{ stringify(example.value, null, 2)}}</pre>
+        </md-tab>
+      </md-tabs>
+    </md-dialog-content>
+
+    <md-dialog-actions>
+      <md-button @click.native="$refs.examplesDialog.close()">ok</md-button>
+    </md-dialog-actions>
+  </md-dialog>
 
 </div>
 </template>
@@ -119,7 +134,7 @@
   display: inherit;
 }
 
-.schema-dialog .md-dialog {
+.schema-dialog .md-dialog, .examples-dialog .md-dialog{
   min-width: 800px;
 }
 
@@ -138,6 +153,7 @@ import ParametersTable from './ParametersTable.vue'
 import SchemaView from './SchemaView.vue'
 import VueMaterial from 'vue-material'
 import deref from 'json-schema-ref-parser'
+import stringify from 'json-stringify-pretty-compact'
 
 Vue.use(VueMaterial)
 
@@ -154,7 +170,7 @@ export default {
   data: () => ({
     selectedEntry: null,
     currentSchema: ' ',
-    currentExamples: [],
+    currentExamples: {},
     currentRequest: {
       contentType: '',
       body: '',
@@ -190,6 +206,7 @@ export default {
   },
   methods: {
     marked,
+    stringify,
     reset(entry) {
       const newParams = {};
       (entry.parameters || []).forEach(p => {
@@ -210,7 +227,7 @@ export default {
       if (entry.requestBody) {
         this.currentRequest.contentType = entry.requestBody.selectedType
         const example = entry.requestBody.content[this.currentRequest.contentType].example
-        this.currentRequest.body = typeof example === 'string' ? example : JSON.stringify(example, null, 2)
+        this.currentRequest.body = typeof example === 'string' ? example : stringify(example, null, 2)
       }
     },
     select(entry) {
