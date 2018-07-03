@@ -4,7 +4,7 @@ import OpenApi from '../src/OpenApi.vue'
 import 'vue-material/dist/vue-material.css'
 import VueResource from 'vue-resource'
 
-import jsonApi from './geocoder.json'
+import jsonApi from './official-examples/api-with-examples.json'
 
 Vue.use(VueResource)
 Vue.use(VueMaterial)

@@ -51,7 +51,7 @@
       <md-layout md-column md-flex-offset="5" md-flex="true" v-if="selectedEntry">
         <h2 class="md-title">{{selectedEntry.title || selectedEntry.summary}}</h2>
         <p class="entry-description" v-if="selectedEntry.description" v-html="marked(selectedEntry.description || '')"></p>
-        <h3 class="md-subheading">{{selectedEntry.method.toUpperCase()}} {{api.servers[0].url + selectedEntry.path}}</h3>
+        <h3 class="md-subheading">{{selectedEntry.method.toUpperCase()}} {{ (api.servers && api.servers.length ? api.servers[0].url : '') + selectedEntry.path}}</h3>
         <md-tabs md-right class="md-transparent" style="margin-top:-54px">
           <md-tab md-label="Documentation">
             <h4 v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">Parameters</h4>
@@ -59,7 +59,7 @@
             <h4>Responses</h4>
             <responses-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog"></responses-table>
           </md-tab>
-          <md-tab md-label="Make request">
+          <md-tab v-if="api.servers && api.servers.length" md-label="Make request">
             <md-layout md-row>
               <md-layout md-column md-flex="40">
                 <h2>Request</h2>
@@ -274,9 +274,9 @@ function fetch(request, entry, api) {
   )
   const httpRequest = {
     method: entry.method,
-    url: api.servers[0].url + entry.path.replace(/{(\w*)}/g, (m, key) => {
+    url: api.servers.length && (api.servers[0].url + entry.path.replace(/{(\w*)}/g, (m, key) => {
       return request.params[key]
-    }),
+    })),
     params,
     headers
   }
