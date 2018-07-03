@@ -4,7 +4,7 @@
     <md-layout md-row md-flex="90" md-align="center">
       <md-layout md-column md-flex="65">
         <h2 class="md-display-2">{{api.info.title}}</h2>
-        <div v-if="api.info.description" v-html="marked(api.info.description)"></div>
+        <div v-if="api.info.description" v-html="marked(api.info.description || '')"></div>
       </md-layout>
       <md-layout md-flex="5"></md-layout>
       <md-layout md-column md-flex="20">
@@ -50,7 +50,7 @@
 
       <md-layout md-column md-flex-offset="5" md-flex="true" v-if="selectedEntry">
         <h2 class="md-title">{{selectedEntry.title || selectedEntry.summary}}</h2>
-        <p class="entry-description" v-if="selectedEntry.description" v-html="marked(selectedEntry.description)"></p>
+        <p class="entry-description" v-if="selectedEntry.description" v-html="marked(selectedEntry.description || '')"></p>
         <h3 class="md-subheading">{{selectedEntry.method.toUpperCase()}} {{api.servers[0].url + selectedEntry.path}}</h3>
         <md-tabs md-right class="md-transparent" style="margin-top:-54px">
           <md-tab md-label="Documentation">

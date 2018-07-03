@@ -38,7 +38,7 @@
 
       <md-table-row v-for="(parameter, i) in selectedEntry.parameters" :key="i">
         <md-table-cell>{{parameter.name}}</md-table-cell>
-        <md-table-cell v-html="marked(parameter.description)"></md-table-cell>
+        <md-table-cell v-html="marked(parameter.description || '')"></md-table-cell>
         <md-table-cell v-if="parameter.schema.type !== 'array'">{{parameter.schema.type}}</md-table-cell>
         <md-table-cell v-if="parameter.schema.type === 'array'">{{parameter.schema.items.type}} array</md-table-cell>
         <md-table-cell v-if="parameter.schema.type !== 'array' && parameter.schema.enum">{{parameter.schema.enum.join(', ')}}</md-table-cell>
