@@ -210,7 +210,7 @@ export default {
     reset(entry) {
       const newParams = {};
       (entry.parameters || []).forEach(p => {
-        this.currentRequest.params[p.name] = (p.in === 'query' && this.queryParams && this.queryParams[p.name]) || (p.in === 'header' && this.headers && this.headers[p.name]) || null
+        newParams[p.name] = (p.in === 'query' && this.queryParams && this.queryParams[p.name]) || (p.in === 'header' && this.headers && this.headers[p.name]) || null
         if (!newParams[p.name]) {
           if (p.schema && p.schema.enum) {
             newParams[p.name] = p.schema.enum[0]
