@@ -55,9 +55,9 @@
         <md-tabs md-right class="md-transparent" style="margin-top:-54px">
           <md-tab md-label="Documentation">
             <h4 v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">Parameters</h4>
-            <parameters-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog"></parameters-table>
+            <parameters-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog" />
             <h4>Responses</h4>
-            <responses-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog"></responses-table>
+            <responses-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog" :openFieldsDialog="openFieldsDialog" />
           </md-tab>
           <md-tab v-if="api.servers && api.servers.length" md-label="Make request">
             <md-layout md-row>
@@ -116,6 +116,41 @@
     </md-dialog-actions>
   </md-dialog>
 
+  <md-dialog ref="fieldsDialog" class="fields-dialog">
+    <md-dialog-title>Fields</md-dialog-title>
+
+    <md-dialog-content>
+       <md-table>
+         <md-table-header>
+           <md-table-row>
+             <md-table-head>Name</md-table-head>
+             <md-table-head>Description</md-table-head>
+             <md-table-head>Type</md-table-head>
+             <md-table-head>Values</md-table-head>
+           </md-table-row>
+         </md-table-header>
+
+         <md-table-body>
+           <md-table-row v-for="(field, name) in currentFields" :key="name">
+             <md-table-cell>{{name}}</md-table-cell>
+             <md-table-cell v-html="marked(field.description || '')"></md-table-cell>
+             <md-table-cell v-if="field.schema.type !== 'array'">{{field.schema.type}}</md-table-cell>
+             <md-table-cell v-if="field.schema.type === 'array'">{{field.schema.items.type}} array</md-table-cell>
+             <md-table-cell v-if="field.schema.type !== 'array' && field.schema.enum">{{field.schema.enum.join(', ')}}</md-table-cell>
+             <md-table-cell v-if="field.schema.type === 'array'">
+               <div style="overflow-y:scroll;max-height:200px;">{{(field.schema.items.enum || []).join(', ')}}</div>
+             </md-table-cell>
+             <md-table-cell v-else />
+           </md-table-row>
+         </md-table-body>
+       </md-table>
+    </md-dialog-content>
+
+    <md-dialog-actions>
+      <md-button @click.native="$refs.fieldsDialog.close()">ok</md-button>
+    </md-dialog-actions>
+  </md-dialog>
+
 </div>
 </template>
 
@@ -171,6 +206,7 @@ export default {
     selectedEntry: null,
     currentSchema: ' ',
     currentExamples: {},
+    currentFields: {},
     currentRequest: {
       contentType: '',
       body: '',
@@ -241,6 +277,10 @@ export default {
     openExamplesDialog(examples) {
       this.currentExamples = examples
       this.$refs.examplesDialog.open()
+    },
+    openFieldsDialog(fields) {
+      this.currentFields = fields
+      this.$refs.fieldsDialog.open()
     },
     request() {
       this.currentResponse = null
