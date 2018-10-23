@@ -1,0 +1,108 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Upload de fichiers et autres contenus multipart/form-data",
+    "version": "0.2.0",
+    "contact": {
+      "name": "Koumoul",
+      "url": "https://koumoul.com",
+      "email": "support@koumoul.com"
+    }
+  },
+  "servers": [{
+    "url": "http://localhost:5600/api/v1/datasets"
+  }],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Lister les jeux de données.",
+        "operationId": "listDatasets",
+        "tags": ["Jeux de données"],
+        "parameters": [{
+          "in": "header",
+          "name": "x-apiKey",
+          "schema": {
+            "type": "string"
+          }
+        }],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Charger un jeu de données",
+        "operationId": "postDataset",
+        "tags": ["Jeux de données"],
+        "parameters": [{
+          "in": "header",
+          "name": "x-apiKey",
+          "schema": {
+            "type": "string"
+          }
+        }],
+        "requestBody": {
+          "description": "Fichier à charger et métadonnées",
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "title": "Dataset",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifier of the dataset"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "Short title of the dataset"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Detailed description of the dataset"
+                  },
+                  "schema": {
+                    "type": "array",
+                    "description": "JSON schema of the dataset",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Les informations du jeu de données.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Dataset",
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Documentation sur Github",
+    "url": "https://koumoul-dev.github.io/data-fair/"
+  }
+}

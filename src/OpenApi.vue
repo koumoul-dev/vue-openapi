@@ -58,15 +58,15 @@
           </md-tab>
           <md-tab v-if="api.servers && api.servers.length" md-label="Make request">
             <md-layout md-row>
-              <md-layout md-column md-flex="40">
+              <md-layout md-column md-flex-small="100" md-flex="40">
                 <h2>Request</h2>
-                <request-form :selectedEntry="selectedEntry" :currentRequest="currentRequest"></request-form>
+                <request-form ref="requestForm" :selectedEntry="selectedEntry" :currentRequest="currentRequest"></request-form>
                 <div>
                   <md-button class="md-raised md-accent" @click.native="request">Execute</md-button>
                 </div>
               </md-layout>
 
-              <md-layout md-column md-flex="60">
+              <md-layout md-column md-flex-small="100" md-flex="60">
                 <h2>Response</h2>
                 <response-display v-if="currentResponse" :entry="selectedEntry" :response="currentResponse"></response-display>
               </md-layout>
@@ -281,7 +281,12 @@ export default {
     },
     request() {
       this.currentResponse = null
-      fetch(this.currentRequest, this.selectedEntry, this.api).then(res => {
+      let formData
+      if (this.selectedEntry.requestBody && this.selectedEntry.requestBody.selectedType === 'multipart/form-data') {
+        formData = this.$refs.requestForm.getFormData()
+      }
+      console.log('formData', formData)
+      fetch(this.currentRequest, this.selectedEntry, this.api, formData).then(res => {
         this.currentResponse = res
       }, res => {
         this.currentResponse = res
@@ -294,7 +299,7 @@ export default {
  * HTTP requests utils
  */
 
-function fetch(request, entry, api) {
+function fetch(request, entry, api, formData) {
   let params = Object.assign({}, ...(entry.parameters || [])
     .filter(p => p.in === 'query' && (p.schema.type === 'array' ? request.params[p.name].length : request.params[p.name]))
     .map(p => ({
@@ -319,7 +324,7 @@ function fetch(request, entry, api) {
   }
   if (entry.requestBody) {
     httpRequest.headers['Content-type'] = entry.requestBody.selectedType
-    httpRequest.body = request.body
+    httpRequest.body = formData || request.body
   }
   return Vue.http(httpRequest)
 }

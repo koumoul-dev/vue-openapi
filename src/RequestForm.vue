@@ -1,10 +1,8 @@
 <template lang="html">
   <form novalidate @submit.stop.prevent="submit" v-if="selectedEntry" id="request-form">
-    <md-input-container v-if="selectedEntry.requestBody">
-      <label for="payload">Payload ({{selectedEntry.requestBody.selectedType}})</label>
-      <md-textarea name="payload" v-model="currentRequest.body"></md-textarea>
-    </md-input-container>
-
+    <md-subheader v-if="selectedEntry.parameters && selectedEntry.parameters.length">
+      Parameters
+    </md-subheader>
     <div v-for="(parameter, i) in selectedEntry.parameters" :key="i">
       <md-input-container v-if="(parameter.schema.type === 'string' || parameter.schema.type === 'integer' || parameter.schema.type === 'number') && !parameter.schema.enum">
         <label>{{parameter.name}}</label>
@@ -32,12 +30,28 @@
       <md-checkbox v-if="parameter.schema.type === 'boolean'" v-model="currentRequest.params[parameter.name]">{{parameter.name}}</md-checkbox>
 
     </div>
+
+    <md-subheader v-if="selectedEntry.requestBody">
+      Body
+    </md-subheader>
+    <multipart-form ref="multipartForm" v-if="selectedEntry.requestBody && selectedEntry.requestBody.selectedType === 'multipart/form-data'" :request-body="selectedEntry.requestBody" />
+    <md-input-container v-else-if="selectedEntry.requestBody">
+      <label for="payload">Payload ({{selectedEntry.requestBody.selectedType}})</label>
+      <md-textarea name="payload" v-model="currentRequest.body"></md-textarea>
+    </md-input-container>
   </form>
 </template>
 
 <script>
+import MultipartForm from './MultipartForm.vue'
 export default {
-  props: ['selectedEntry', 'currentRequest']
+  components: {MultipartForm},
+  props: ['selectedEntry', 'currentRequest'],
+  methods: {
+    getFormData() {
+      return this.$refs.multipartForm && this.$refs.multipartForm.getFormData()
+    }
+  }
 }
 </script>
 

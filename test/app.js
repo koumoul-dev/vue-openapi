@@ -4,7 +4,8 @@ import OpenApi from '../src/OpenApi.vue'
 import 'vue-material/dist/vue-material.css'
 import VueResource from 'vue-resource'
 
-import jsonApi from './official-examples/api-with-examples.json'
+// import jsonApi from './official-examples/api-with-examples.json'
+import jsonApi from './multipart.json'
 
 Vue.use(VueResource)
 Vue.use(VueMaterial)
