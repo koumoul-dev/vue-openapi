@@ -1,6 +1,6 @@
 {
   "name": "@koumoul/vue-openapi",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "Display API documentation that follow the OpenAPI 3.0 Specification",
   "keywords": [
     "vue",
