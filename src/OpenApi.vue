@@ -1,16 +1,14 @@
 <template>
 <div class="openapi">
   <md-layout md-column>
-    <md-layout md-row md-flex="90" md-align="center">
-      <md-layout md-column md-flex="65">
-        <h2 class="md-display-2">{{api.info.title}}</h2>
+    <md-layout md-row>
+      <md-layout md-column md-flex-small="50" md-flex-medium="70" md-flex-large="80">
+        <h2 class="md-display-1">{{api.info.title}}</h2>
         <div v-if="api.info.description" v-html="marked(api.info.description || '')"></div>
       </md-layout>
-      <md-layout md-flex="5"></md-layout>
-      <md-layout md-column md-flex="20">
-        <md-layout md-flex="true"></md-layout>
+      <md-layout md-column md-flex-small="50" md-flex-medium="30" md-flex-large="20">
         <md-card v-if="api.info">
-          <md-list>
+          <md-list class="md-dense">
             <md-list-item v-if="api.info.contact && api.info.contact.url">
               <md-icon>home</md-icon> <span><a :href="api.info.contact.url">{{api.info.contact.name || api.info.contact.url}}</a></span>
             </md-list-item>
@@ -25,7 +23,6 @@
             </md-list-item>
           </md-list>
         </md-card>
-        <md-layout md-flex="true"></md-layout>
       </md-layout>
     </md-layout>
 
@@ -51,8 +48,8 @@
       <md-layout md-column md-flex-offset="5" md-flex="true" v-if="selectedEntry">
         <h2 class="md-title">{{selectedEntry.title || selectedEntry.summary}}</h2>
         <p class="entry-description" v-if="selectedEntry.description" v-html="marked(selectedEntry.description || '')"></p>
-        <h3 class="md-subheading">{{selectedEntry.method.toUpperCase()}} {{ (api.servers && api.servers.length ? api.servers[0].url : '') + selectedEntry.path}}</h3>
-        <md-tabs md-right class="md-transparent" style="margin-top:-54px">
+        <h3 class="md-subheading" style="margin: 0">{{selectedEntry.method.toUpperCase()}} {{ (api.servers && api.servers.length ? api.servers[0].url : '') + selectedEntry.path}}</h3>
+        <md-tabs md-right class="md-transparent">
           <md-tab md-label="Documentation">
             <h4 v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">Parameters</h4>
             <parameters-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog" />

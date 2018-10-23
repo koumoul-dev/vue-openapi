@@ -57,6 +57,8 @@ Run webpack in watch mode:
 
 Then open test/index.html in your browser.
 
+To switch between examples, modify the import "jsonApi" in test/app.js.
+
 ## License
 
 [MIT License](license.md)
