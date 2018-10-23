@@ -1,6 +1,6 @@
 {
   "name": "vue-openapi",
-  "version": "0.9.2",
+  "version": "0.10.0",
   "description": "Display API documentation that follow the OpenAPI 3.0 Specification",
   "keywords": [
     "vue",
