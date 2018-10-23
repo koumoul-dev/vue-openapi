@@ -3,8 +3,8 @@
   <md-layout md-column>
     <md-layout md-row>
       <md-layout md-column md-flex-small="50" md-flex-medium="70" md-flex-large="80">
-        <h2 class="md-display-1">{{api.info.title}}</h2>
-        <div v-if="api.info.description" v-html="marked(api.info.description || '')"></div>
+        <h2 class="md-display-1" style="padding-left:8px;">{{api.info.title}}</h2>
+        <div v-if="api.info.description" v-html="marked(api.info.description || '')" style="padding-left:8px;"></div>
       </md-layout>
       <md-layout md-column md-flex-small="50" md-flex-medium="30" md-flex-large="20">
         <md-card v-if="api.info">
