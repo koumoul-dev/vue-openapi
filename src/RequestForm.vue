@@ -1,5 +1,15 @@
 <template lang="html">
   <form novalidate @submit.stop.prevent="submit" v-if="selectedEntry" id="request-form">
+    <md-subheader v-if="selectedEntry.security && selectedEntry.security.filter(s => s.scheme.in !== 'cookie').length">
+      Sécurité
+    </md-subheader>
+    <div v-for="(security, i) in selectedEntry.security.filter(s => s.scheme.in !== 'cookie')" :key="i">
+      <md-input-container>
+        <label>{{security.scheme.name}}</label>
+        <md-input v-model="currentRequest.security[security.scheme.name]" type="string"></md-input>
+      </md-input-container>
+    </div>
+
     <md-subheader v-if="selectedEntry.parameters && selectedEntry.parameters.length">
       Parameters
     </md-subheader>

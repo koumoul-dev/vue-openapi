@@ -12,19 +12,27 @@
   "servers": [{
     "url": "http://localhost:5600/api/v1/datasets"
   }],
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-apiKey"
+      },
+      "sdCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "id_token"
+      }
+    }
+  },
+  "security": [{"apiKey": []}, {"sdCookie": []}],
   "paths": {
     "/": {
       "get": {
         "summary": "Lister les jeux de données.",
         "operationId": "listDatasets",
         "tags": ["Jeux de données"],
-        "parameters": [{
-          "in": "header",
-          "name": "x-apiKey",
-          "schema": {
-            "type": "string"
-          }
-        }],
         "responses": {
           "200": {
             "content": {
@@ -41,13 +49,6 @@
         "summary": "Charger un jeu de données",
         "operationId": "postDataset",
         "tags": ["Jeux de données"],
-        "parameters": [{
-          "in": "header",
-          "name": "x-apiKey",
-          "schema": {
-            "type": "string"
-          }
-        }],
         "requestBody": {
           "description": "Fichier à charger et métadonnées",
           "required": true,

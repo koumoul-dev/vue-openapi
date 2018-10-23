@@ -51,6 +51,8 @@
         <h3 class="md-subheading" style="margin: 0">{{selectedEntry.method.toUpperCase()}} {{ (api.servers && api.servers.length ? api.servers[0].url : '') + selectedEntry.path}}</h3>
         <md-tabs md-right class="md-transparent">
           <md-tab md-label="Documentation">
+            <h4 v-if="selectedEntry.security && selectedEntry.security.length">Sécurité</h4>
+            <security-table :selectedEntry="selectedEntry" />
             <h4 v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">Parameters</h4>
             <parameters-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog" />
             <h4>Responses</h4>
@@ -151,29 +153,6 @@
 </div>
 </template>
 
-<style lang="css">
-.openapi {
-   position:relative;
-   overflow-x:hidden;
-   height:100%;
-}
-
-.openapi #request-form {
-  padding: 16px;
-}
-
-.openapi .md-table .md-table-cell.md-has-action .md-table-cell-container {
-  display: inherit;
-}
-
-.schema-dialog .md-dialog, .examples-dialog .md-dialog{
-  min-width: 800px;
-}
-
-.openapi .entry-description {
-  margin: 0;
-}
-</style>
 
 <script>
 import Vue from 'vue'
@@ -181,6 +160,7 @@ import marked from 'marked'
 import RequestForm from './RequestForm.vue'
 import ResponseDisplay from './ResponseDisplay.vue'
 import ResponsesTable from './ResponsesTable.vue'
+import SecurityTable from './SecurityTable.vue'
 import ParametersTable from './ParametersTable.vue'
 import SchemaView from './SchemaView.vue'
 import VueMaterial from 'vue-material'
@@ -195,6 +175,7 @@ export default {
     RequestForm,
     ResponseDisplay,
     ResponsesTable,
+    SecurityTable,
     ParametersTable,
     SchemaView
   },
@@ -207,7 +188,8 @@ export default {
     currentRequest: {
       contentType: '',
       body: '',
-      params: {}
+      params: {},
+      security: {}
     },
     currentResponse: null,
     tags: {}
@@ -257,6 +239,13 @@ export default {
         }
       })
       this.currentRequest.params = newParams
+
+      const newSecurity = {}
+      entry.security.forEach(s => {
+        this.$set(newSecurity, s.scheme.name, this.currentRequest.security[s.scheme.name] || null)
+      })
+      this.currentRequest.security = newSecurity
+
       if (entry.requestBody) {
         this.currentRequest.contentType = entry.requestBody.selectedType
         const example = entry.requestBody.content[this.currentRequest.contentType].example
@@ -285,7 +274,6 @@ export default {
       if (this.selectedEntry.requestBody && this.selectedEntry.requestBody.selectedType === 'multipart/form-data') {
         formData = this.$refs.requestForm.getFormData()
       }
-      console.log('formData', formData)
       fetch(this.currentRequest, this.selectedEntry, this.api, formData).then(res => {
         this.currentResponse = res
       }, res => {
@@ -314,6 +302,17 @@ function fetch(request, entry, api, formData) {
       [p.name]: p.schema.type === 'array' ? request.params[p.name].join(',') : request.params[p.name]
     }))
   )
+
+  entry.security
+    .filter(s => !!request.security[s.scheme.name])
+    .forEach(s => {
+      if (s.scheme.in === 'header') {
+        headers[s.scheme.name] = request.security[s.scheme.name]
+      } else if (s.scheme.in === 'query') {
+        params[s.scheme.name] = request.security[s.scheme.name]
+      }
+    })
+
   const httpRequest = {
     method: entry.method,
     url: api.servers.length && (api.servers[0].url + entry.path.replace(/{(\w*)}/g, (m, key) => {
@@ -373,6 +372,7 @@ async function getTags(api) {
         tags[tag].push(entry)
       })
 
+      // Add path level parameters to the operation
       entry.parameters = entry.parameters || []
       if (derefAPI.paths[path].parameters) {
         entry.parameters = derefAPI.paths[path].parameters.concat(entry.parameters)
@@ -392,6 +392,14 @@ async function getTags(api) {
         }
       }
 
+      // security comes from the root ofthe API or the operation
+      entry.security = entry.security || derefAPI.security || []
+      entry.security.forEach(s => {
+        const key = Object.keys(s)[0]
+        s.key = key
+        s.scheme = derefAPI.components.securitySchemes[key]
+      })
+
       // Some preprocessing with responses
       entry.responses = entry.responses || {}
       Object.values(entry.responses).forEach(response => {
@@ -407,3 +415,27 @@ async function getTags(api) {
 }
 
 </script>
+
+<style lang="css">
+.openapi {
+   position:relative;
+   overflow-x:hidden;
+   height:100%;
+}
+
+.openapi #request-form {
+  padding: 16px;
+}
+
+.openapi .md-table .md-table-cell.md-has-action .md-table-cell-container {
+  display: inherit;
+}
+
+.schema-dialog .md-dialog, .examples-dialog .md-dialog{
+  min-width: 800px;
+}
+
+.openapi .entry-description {
+  margin: 0;
+}
+</style>

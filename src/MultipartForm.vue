@@ -68,7 +68,6 @@ export default {
       Object.keys(this.properties)
         .filter(key => this.model[key] !== null)
         .forEach(key => {
-          console.log('APPEND', key, this.model[key])
           form.append(key, this.model[key])
         })
       return form
