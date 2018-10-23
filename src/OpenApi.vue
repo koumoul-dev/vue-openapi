@@ -385,7 +385,7 @@ async function getTags(api) {
         })
       }
       if (entry.requestBody) {
-        if (entry.requestBody.content) {
+        if (entry.requestBody.content && Object.keys(entry.requestBody.content).length) {
           Vue.set(entry.requestBody, 'selectedType', Object.keys(entry.requestBody.content)[0])
           entry.requestBody.required = true
           Object.values(entry.requestBody.content).forEach(contentType => processContent(contentType, api))
