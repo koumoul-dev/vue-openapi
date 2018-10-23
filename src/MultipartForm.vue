@@ -66,9 +66,13 @@ export default {
     getFormData() {
       const form = new FormData()
       Object.keys(this.properties)
-        .filter(key => this.model[key] !== null)
+        .filter(key => !!this.model[key])
         .forEach(key => {
-          form.append(key, this.model[key])
+          if (['object', 'array'].includes(this.properties[key].type)) {
+            if (this.model[key].trim() !== '') form.append(key, this.model[key].trim())
+          } else {
+            form.append(key, this.model[key])
+          }
         })
       return form
     }
