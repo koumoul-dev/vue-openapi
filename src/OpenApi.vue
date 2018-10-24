@@ -51,7 +51,7 @@
         <h3 class="md-subheading" style="margin: 0">{{selectedEntry.method.toUpperCase()}} {{ (api.servers && api.servers.length ? api.servers[0].url : '') + selectedEntry.path}}</h3>
         <md-tabs md-right class="md-transparent">
           <md-tab md-label="Documentation">
-            <h4 v-if="selectedEntry.security && selectedEntry.security.length">Sécurité</h4>
+            <h4 v-if="selectedEntry.security && selectedEntry.security.length">Security</h4>
             <security-table :selectedEntry="selectedEntry" />
             <h4 v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">Parameters</h4>
             <parameters-table :selectedEntry="selectedEntry" :openSchemaDialog="openSchemaDialog" :openExamplesDialog="openExamplesDialog" />
