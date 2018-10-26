@@ -33,6 +33,10 @@
         "summary": "Lister les jeux de données.",
         "operationId": "listDatasets",
         "tags": ["Jeux de données"],
+        "parameters": [{
+          "name": "filter",
+          "in": "query"
+        }],
         "responses": {
           "200": {
             "content": {

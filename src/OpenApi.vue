@@ -2,11 +2,11 @@
 <div class="openapi">
   <md-layout md-column>
     <md-layout md-row>
-      <md-layout md-column md-flex-small="50" md-flex-medium="70" md-flex-large="80">
+      <md-layout md-column md-flex-small="50" md-flex-medium="70" md-flex-large="80" md-flex-xlarge="80">
         <h2 class="md-display-1" style="padding-left:8px;">{{api.info.title}}</h2>
         <div v-if="api.info.description" v-html="marked(api.info.description || '')" style="padding-left:8px;"></div>
       </md-layout>
-      <md-layout md-column md-flex-small="50" md-flex-medium="30" md-flex-large="20">
+      <md-layout md-column md-flex-small="50" md-flex-medium="30" md-flex-large="20" md-flex-xlarge="20">
         <md-card v-if="api.info">
           <md-list class="md-dense">
             <md-list-item v-if="api.info.contact && api.info.contact.url">
@@ -64,7 +64,8 @@
                 <h2>Request</h2>
                 <request-form ref="requestForm" :selectedEntry="selectedEntry" :currentRequest="currentRequest"></request-form>
                 <div>
-                  <md-button class="md-raised md-accent" @click.native="request">Execute</md-button>
+                  <md-button class="md-raised md-accent" @click.native="request" style="float: right;">Execute</md-button>
+                  <md-button class="md-raised md-primary" @click.native="prepareHTTPRequest();$refs.snippetDialog.open()" style="float: right;">Snippet</md-button>
                 </div>
               </md-layout>
 
@@ -150,6 +151,18 @@
     </md-dialog-actions>
   </md-dialog>
 
+  <md-dialog ref="snippetDialog" class="snippet-dialog">
+    <md-dialog-title>Snippet</md-dialog-title>
+
+    <md-dialog-content v-if="httpRequest && httpRequest.url && httpRequest.method">
+      <snippet :request="httpRequest" />
+    </md-dialog-content>
+
+    <md-dialog-actions>
+      <md-button @click.native="$refs.snippetDialog.close()">ok</md-button>
+    </md-dialog-actions>
+  </md-dialog>
+
 </div>
 </template>
 
@@ -163,6 +176,7 @@ import ResponsesTable from './ResponsesTable.vue'
 import SecurityTable from './SecurityTable.vue'
 import ParametersTable from './ParametersTable.vue'
 import SchemaView from './SchemaView.vue'
+import Snippet from './Snippet.vue'
 import VueMaterial from 'vue-material'
 import deref from 'json-schema-ref-parser'
 import stringify from 'json-stringify-pretty-compact'
@@ -177,7 +191,8 @@ export default {
     ResponsesTable,
     SecurityTable,
     ParametersTable,
-    SchemaView
+    SchemaView,
+    Snippet
   },
   props: ['api', 'headers', 'queryParams'],
   data: () => ({
@@ -192,7 +207,8 @@ export default {
       security: {}
     },
     currentResponse: null,
-    tags: {}
+    tags: {},
+    httpRequest: null
   }),
   mounted: function() {
     if (this.$refs.menu.$children.length) this.$refs.menu.$children[0].toggleExpandList()
@@ -268,64 +284,65 @@ export default {
       this.currentFields = fields
       this.$refs.fieldsDialog.open()
     },
-    request() {
-      this.currentResponse = null
-      let formData
-      if (this.selectedEntry.requestBody && this.selectedEntry.requestBody.selectedType === 'multipart/form-data') {
-        formData = this.$refs.requestForm.getFormData()
+    prepareHTTPRequest() {
+      const entry = this.selectedEntry
+      const request = this.currentRequest
+      if (!entry || !request) return
+      let params = Object.assign({}, ...(entry.parameters || [])
+        .filter(p => p.in === 'query' && (p.schema.type === 'array' ? request.params[p.name].length : request.params[p.name]))
+        .map(p => ({
+          // TODO : join character for array should depend of p.style
+          [p.name]: p.schema.type === 'array' ? request.params[p.name].join(',') : request.params[p.name]
+        }))
+      )
+      let headers = Object.assign({}, ...(entry.parameters || [])
+        .filter(p => p.in === 'header' && (p.schema.type === 'array' ? request.params[p.name].length : request.params[p.name]))
+        .map(p => ({
+          // TODO : join character for array should depend of p.style
+          [p.name]: p.schema.type === 'array' ? request.params[p.name].join(',') : request.params[p.name]
+        }))
+      )
+
+      entry.security
+        .filter(s => !!request.security[s.scheme.name])
+        .forEach(s => {
+          if (s.scheme.in === 'header') {
+            headers[s.scheme.name] = request.security[s.scheme.name]
+          } else if (s.scheme.in === 'query') {
+            params[s.scheme.name] = request.security[s.scheme.name]
+          }
+        })
+
+      const httpRequest = {
+        method: entry.method,
+        url: this.api.servers.length && (this.api.servers[0].url + entry.path.replace(/{(\w*)}/g, (m, key) => {
+          return request.params[key]
+        })),
+        params,
+        headers
       }
-      fetch(this.currentRequest, this.selectedEntry, this.api, formData).then(res => {
+
+      const contentType = this.selectedEntry.requestBody && this.selectedEntry.requestBody.selectedType
+      if (contentType) {
+        headers['content-type'] = this.selectedEntry.requestBody.selectedType
+        if (contentType === 'multipart/form-data') {
+          httpRequest.body = this.$refs.requestForm.getFormData()
+        } else {
+          httpRequest.body = request.body
+        }
+      }
+
+      this.httpRequest = httpRequest
+    },
+    request() {
+      this.prepareHTTPRequest()
+      Vue.http(this.httpRequest).then(res => {
         this.currentResponse = res
       }, res => {
         this.currentResponse = res
       })
     }
   }
-}
-
-/*
- * HTTP requests utils
- */
-
-function fetch(request, entry, api, formData) {
-  let params = Object.assign({}, ...(entry.parameters || [])
-    .filter(p => p.in === 'query' && (p.schema.type === 'array' ? request.params[p.name].length : request.params[p.name]))
-    .map(p => ({
-      // TODO : join character for array should depend of p.style
-      [p.name]: p.schema.type === 'array' ? request.params[p.name].join(',') : request.params[p.name]
-    }))
-  )
-  let headers = Object.assign({}, ...(entry.parameters || [])
-    .filter(p => p.in === 'header' && (p.schema.type === 'array' ? request.params[p.name].length : request.params[p.name]))
-    .map(p => ({
-      // TODO : join character for array should depend of p.style
-      [p.name]: p.schema.type === 'array' ? request.params[p.name].join(',') : request.params[p.name]
-    }))
-  )
-
-  entry.security
-    .filter(s => !!request.security[s.scheme.name])
-    .forEach(s => {
-      if (s.scheme.in === 'header') {
-        headers[s.scheme.name] = request.security[s.scheme.name]
-      } else if (s.scheme.in === 'query') {
-        params[s.scheme.name] = request.security[s.scheme.name]
-      }
-    })
-
-  const httpRequest = {
-    method: entry.method,
-    url: api.servers.length && (api.servers[0].url + entry.path.replace(/{(\w*)}/g, (m, key) => {
-      return request.params[key]
-    })),
-    params,
-    headers
-  }
-  if (entry.requestBody) {
-    httpRequest.headers['Content-type'] = entry.requestBody.selectedType
-    httpRequest.body = formData || request.body
-  }
-  return Vue.http(httpRequest)
 }
 
 /*
