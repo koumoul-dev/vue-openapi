@@ -319,7 +319,8 @@ export default {
           return request.params[key]
         })),
         params,
-        headers
+        headers,
+        credentials: true
       }
 
       const contentType = this.selectedEntry.requestBody && this.selectedEntry.requestBody.selectedType
