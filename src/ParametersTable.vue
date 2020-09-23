@@ -31,7 +31,7 @@
           <md-checkbox v-model="selectedEntry.requestBody.required" disabled></md-checkbox>
         </md-table-cell>
         <md-table-cell>
-          <md-icon class="md-accent" v-if="examples(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType])" @click.native="openExamplesDialog(examples(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType]))" style="cursor:pointer">open_in_new</md-icon>
+          <md-icon class="md-accent" v-if="selectedEntry.requestBody.content && examples(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType])" @click.native="openExamplesDialog(examples(selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType]))" style="cursor:pointer">open_in_new</md-icon>
         </md-table-cell>
       </md-table-row>
 
