@@ -262,10 +262,12 @@ export default {
       })
       this.currentRequest.security = newSecurity
 
-      if (entry.requestBody) {
+      if (entry.requestBody && entry.requestBody.selectedType) {
         this.currentRequest.contentType = entry.requestBody.selectedType
         const example = entry.requestBody.content[this.currentRequest.contentType].example
         this.currentRequest.body = typeof example === 'string' ? example : stringify(example, null, 2)
+      } else {
+        this.currentRequest.body = ''
       }
     },
     select(entry) {
