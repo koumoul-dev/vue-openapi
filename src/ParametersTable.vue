@@ -19,7 +19,7 @@
         <md-table-cell v-if="!selectedEntry.requestBody.content"></md-table-cell>
         <md-table-cell v-if="selectedEntry.requestBody.content">
           <md-select v-model="selectedEntry.requestBody.selectedType">
-            <md-option v-for="contentType in Object.keys(selectedEntry.requestBody.content)" :key="contentType" :value="contentType">{{contentType}}</md-option>
+            <md-option v-for="contentType in Object.keys(selectedEntry.requestBody.content)" :key="`contentType_${contentType}`" :value="contentType">{{contentType}}</md-option>
           </md-select>
         </md-table-cell>
         <md-table-cell v-if="!selectedEntry.requestBody.content || !selectedEntry.requestBody.content[selectedEntry.requestBody.selectedType].schema"></md-table-cell>
@@ -36,7 +36,7 @@
       </md-table-row>
 
 
-      <md-table-row v-for="(parameter, i) in selectedEntry.parameters" :key="i">
+      <md-table-row v-for="(parameter, i) in selectedEntry.parameters" :key="`parameter_${i}`">
         <md-table-cell>{{parameter.name}}</md-table-cell>
         <md-table-cell v-html="marked(parameter.description || '')"></md-table-cell>
         <md-table-cell v-if="parameter.schema.type !== 'array'">{{parameter.schema.type}}</md-table-cell>

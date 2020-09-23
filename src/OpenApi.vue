@@ -28,11 +28,11 @@
 
     <md-layout md-row style="flex-wrap: nowrap;">
       <md-list class="md-dense" ref="menu">
-        <md-list-item v-for="(entries, tag) in tags" :key="tag" md-expand-multiple>
+        <md-list-item v-for="(entries, tag) in tags" :key="`tag_${tag}`" md-expand-multiple>
           <span class="md-title">{{tag}}</span>
           <md-list-expand>
             <md-list>
-              <md-list-item v-for="(entry, i) in entries" :key="i" @click.native="select(entry)" style="cursor:pointer">
+              <md-list-item v-for="(entry, i) in entries" :key="`entry_${i}`" @click.native="select(entry)" style="cursor:pointer">
                 <md-subheader class="md-title" :class="{'md-accent':selectedEntry === entry}" v-html="entry.path.replace(/\//g,'<b>/</b>')"></md-subheader>
                 <md-subheader :md-theme="entry.method" class="md-primary">{{entry.method}}</md-subheader>
               </md-list-item>
@@ -131,7 +131,7 @@
          </md-table-header>
 
          <md-table-body>
-           <md-table-row v-for="(field, name) in currentFields" :key="name">
+           <md-table-row v-for="(field, name) in currentFields" :key="`field_${name}`">
              <md-table-cell>{{name}}</md-table-cell>
              <md-table-cell v-html="marked(field.description || '')"></md-table-cell>
              <md-table-cell v-if="field.schema.type !== 'array'">{{field.schema.type}}</md-table-cell>

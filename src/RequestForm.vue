@@ -3,7 +3,7 @@
     <md-subheader v-if="selectedEntry.security && selectedEntry.security.filter(s => s.scheme.in !== 'cookie').length">
       Security
     </md-subheader>
-    <div v-for="(security, i) in selectedEntry.security.filter(s => s.scheme.in !== 'cookie')" :key="i">
+    <div v-for="(security, i) in selectedEntry.security.filter(s => s.scheme.in !== 'cookie')" :key="`security_${i}`">
       <md-input-container>
         <label>{{security.scheme.name}}</label>
         <md-input v-model="currentRequest.security[security.scheme.name]" type="string"></md-input>
@@ -13,7 +13,7 @@
     <md-subheader v-if="selectedEntry.parameters && selectedEntry.parameters.length">
       Parameters
     </md-subheader>
-    <div v-for="(parameter, i) in selectedEntry.parameters" :key="i">
+    <div v-for="(parameter, i) in selectedEntry.parameters" :key="`parameter_${i}`">
       <md-input-container v-if="(parameter.schema.type === 'string' || parameter.schema.type === 'integer' || parameter.schema.type === 'number') && !parameter.schema.enum">
         <label>{{parameter.name}}</label>
         <md-input v-model="currentRequest.params[parameter.name]" :type="parameter.schema.type === 'string' ? 'text' : 'number'"></md-input>
@@ -22,14 +22,14 @@
       <md-input-container v-if="parameter.schema.enum">
         <label>{{parameter.name}}</label>
         <md-select v-model="currentRequest.params[parameter.name]">
-          <md-option v-for="val in parameter.schema.enum" :key="val" :value="val">{{val}}</md-option>
+          <md-option v-for="val in parameter.schema.enum" :key="`parameter_${i}_${val}`" :value="val">{{val}}</md-option>
         </md-select>
       </md-input-container>
 
       <md-input-container v-if="parameter.schema.type === 'array' && parameter.schema.items.enum">
         <label>{{parameter.name}}</label>
         <md-select v-model="currentRequest.params[parameter.name]" multiple>
-          <md-option v-for="val in parameter.schema.items.enum" :key="val" :value="val">{{val}}</md-option>
+          <md-option v-for="val in parameter.schema.items.enum" :key="`parameter_${i}_${val}`" :value="val">{{val}}</md-option>
         </md-select>
       </md-input-container>
 

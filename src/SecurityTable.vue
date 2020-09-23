@@ -9,7 +9,7 @@
     </md-table-header>
 
     <md-table-body>
-      <md-table-row v-for="(security, i) in selectedEntry.security" :key="i">
+      <md-table-row v-for="(security, i) in selectedEntry.security" :key="`security_${i}`">
         <md-table-cell>{{security.scheme.name}}</md-table-cell>
         <md-table-cell>{{security.scheme.type}}</md-table-cell>
         <md-table-cell>{{security.scheme.in}}</md-table-cell>

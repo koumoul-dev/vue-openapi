@@ -1,6 +1,6 @@
 <template lang="html">
   <md-layout column md-flex="100">
-    <md-layout row md-flex="100" v-for="key in Object.keys(properties)" :key="key">
+    <md-layout row md-flex="100" v-for="key in Object.keys(properties)" :key="`property_${key}`">
       <!-- File upload -->
       <md-input-container v-if="properties[key].type === 'string' && properties[key].format === 'binary'">
         <label>{{properties[key].title || key}}</label>
@@ -11,7 +11,7 @@
       <md-input-container v-else-if="properties[key].type === 'array' && properties[key].items.enum">
         <label>{{properties[key].title || key}}</label>
         <md-select v-model="model[key]" multiple>
-          <md-option v-for="val in properties[key].items.enum" :key="val" :value="val">{{val}}</md-option>
+          <md-option v-for="val in properties[key].items.enum" :key="`property_${key}_${val}`" :value="val">{{val}}</md-option>
         </md-select>
       </md-input-container>
 
@@ -19,7 +19,7 @@
       <md-input-container v-else-if="properties[key].enum">
         <label>{{properties[key].title || key}}</label>
         <md-select v-model="model[key]">
-          <md-option v-for="val in properties[key].enum" :key="val" :value="val">{{val}}</md-option>
+          <md-option v-for="val in properties[key].enum" :key="`property_${key}_${val}`" :value="val">{{val}}</md-option>
         </md-select>
       </md-input-container>
 

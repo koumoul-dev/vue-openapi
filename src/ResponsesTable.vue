@@ -12,13 +12,13 @@
     </md-table-header>
 
     <md-table-body>
-      <md-table-row v-for="(response, code) in selectedEntry.responses" :key="code">
+      <md-table-row v-for="(response, code) in selectedEntry.responses" :key="`response_${code}`">
         <md-table-cell>{{code}}</md-table-cell>
         <md-table-cell v-html="marked(response.description || '')"></md-table-cell>
 
         <md-table-cell v-if="response.content">
           <md-select v-model="response.selectedType">
-            <md-option v-for="(value, content) in response.content" :key="content" :value="content">{{content}}</md-option>
+            <md-option v-for="(value, content) in response.content" :key="`response_content_${content}`" :value="content">{{content}}</md-option>
           </md-select>
         </md-table-cell>
         <md-table-cell v-else />
