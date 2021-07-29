@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <md-table v-if="(selectedEntry.parameters && selectedEntry.parameters.length) || selectedEntry.requestBody">
     <md-table-header>
       <md-table-row>
