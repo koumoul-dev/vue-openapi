@@ -10,7 +10,10 @@
         <md-card v-if="api.info">
           <md-list class="md-dense">
             <md-list-item v-if="api.info.contact && api.info.contact.url">
-              <md-icon>home</md-icon> <span><a :href="api.info.contact.url">{{api.info.contact.name || api.info.contact.url}}</a></span>
+              <md-icon>home</md-icon> <span><a :href="api.info.contact.url" target="_top">{{api.info.contact.name || api.info.contact.url}}</a></span>
+            </md-list-item>
+            <md-list-item v-if="api.info.contact && !api.info.contact.url && api.info.contact.name">
+              <md-icon>home</md-icon> <span>{{api.info.contact.name}}</span>
             </md-list-item>
             <md-list-item v-if="api.info.contact && api.info.contact.email">
               <md-icon>email</md-icon> <span><a :href="'mailto:'+api.info.contact.email">{{api.info.contact.email}}</a></span>
