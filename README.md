@@ -13,11 +13,6 @@ npm :
 $ npm install --save vue-openapi
 ```
 
-yarn:
-```console
-$ yarn add vue-openapi
-```
-
 ## Usage
 ```js
 import Vue from 'vue'
