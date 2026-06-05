@@ -1,5 +1,10 @@
 # OpenAPI viewer component for VueJS
 
+> ## ⚠️ Deprecated — no longer maintained
+>
+> This project is no longer maintained or updated. It is kept for archival purposes.
+> It has been superseded by [`@data-fair/openapi-viewer`](https://github.com/data-fair/openapi-viewer).
+
 This [Vue.js](https://vuejs.org/) component is designed to easily browse and test a REST API described
 with the [OpenAPI 3.0 Specification](https://github.com/OAI/OpenAPI-Specification) (formerly known as Swagger Specification). This component follows Google [Material Design](https://material.google.com/) principles and relies on the [Vue Material](https://github.com/marcosmoura/vue-material) framework. It also relies on [vue-resource](https://github.com/pagekit/vue-resource) to perform API requests.
 
