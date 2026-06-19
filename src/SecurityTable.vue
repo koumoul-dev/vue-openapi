@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <md-table>
     <md-table-header>
       <md-table-row>

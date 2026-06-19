@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <md-layout column md-flex="100">
     <md-layout row md-flex="100" v-for="key in Object.keys(properties)" :key="`property_${key}`">
       <!-- File upload -->

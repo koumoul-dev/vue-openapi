@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <form novalidate @submit.stop.prevent="submit" v-if="selectedEntry" id="request-form">
     <md-subheader v-if="selectedEntry.security && selectedEntry.security.filter(s => s.scheme.in !== 'cookie').length">
       Security

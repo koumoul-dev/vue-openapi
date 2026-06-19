@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <md-layout md-column class="response-display">
     <span>{{entry.method.toUpperCase()}} {{response.url}}&nbsp;&nbsp;&nbsp;&nbsp;<md-chip :class="response.ok ? 'md-primary':'md-warn'">{{response.status}} {{response.statusText}}</md-chip></span>
     <br>
